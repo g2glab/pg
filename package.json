@@ -1,0 +1,16 @@
+{
+  "name": "g2gml",
+  "version": "0.0.1",
+  "description": "",
+  "devDependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "request": "^2.85.0"
+  },
+  "dependencies": {
+    "config": "^1.30.0",
+    "js-yaml": "^3.11.0",
+    "mocha": "^5.2.0",
+    "valid-url": "^1.0.9"
+  }
+}
