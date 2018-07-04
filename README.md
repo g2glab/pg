@@ -14,18 +14,12 @@ Install modules by npm.
 
 Command syntax is as follows.
 
-    $ node g2g.js <output_format> <g2g_mapping_file> <endpoint_url>
-    $ node g2g.js <output_format> <g2g_mapping_file> <local_rdf_file>
+    $ node pg_to_pgx.js <input_pg_file> <output_path_prefix>
+    $ node pg_to_neo.js <input_pg_file> <output_path_prefix>
+    $ node pg_to_dot.js <input_pg_file> <output_path_prefix>
 
-**Endpoint Mode:**
+**Example:**
 
-Execute an example g2g for musicians on "ja.dbpedia.org".
+Execute an example to create PGX format files from a pg file.
 
-    $ node g2g.js pg examples/musician.g2g http://ja.dbpedia.org/sparql
-
-**Local File Mode:**
-
-If you have installed Apache Jena ARQ (https://jena.apache.org/documentation/query/index.html), you can directly handle local RDF data.
-The following command converts ```examples/ttl/people.ttl``` by ```examples/people.g2g```.
-
-    $ node g2g.js pg examples/people.g2g examples/ttl/people.ttl
+    $ node pg_to_pgx.js examples/datatype/datatype.pg output/datatype
