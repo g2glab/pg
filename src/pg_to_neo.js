@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // USAGE: $ node pg_to_neo.js <pg_file> <prefix>
 // OUTPUT_DIR: output/
 // OUTPUT_FILES: <prefix>.neo.nodes <prefix>.neo.edges
@@ -7,7 +9,7 @@ var prefix = process.argv[3];
 
 var fs = require('fs');
 var readline = require('readline');
-var pg = require('./src/pg_to.js');
+var pg = require('./pg_to.js');
 
 var node_props = ['type'];
 var edge_props = ['type'];

@@ -1,6 +1,6 @@
 # PG
 
-Plaing Property Graph Format
+Plain Property Graph Format
 
 ## Getting Started
 
@@ -11,15 +11,16 @@ Go into the project directory.
 Install modules by npm.
 
     $ npm install
+    $ npm link
 
 Command syntax is as follows.
 
-    $ node pg_to_pgx.js <input_pg_file> <output_path_prefix>
-    $ node pg_to_neo.js <input_pg_file> <output_path_prefix>
-    $ node pg_to_dot.js <input_pg_file> <output_path_prefix>
+    $ pg_to_pgx <input_pg_file> <output_path_prefix>
+    $ pg_to_neo <input_pg_file> <output_path_prefix>
+    $ pg_to_dot <input_pg_file> <output_path_prefix>
 
 **Example:**
 
 Execute an example to create PGX format files from a pg file.
 
-    $ node pg_to_pgx.js examples/datatype/datatype.pg output/datatype
+    $ pg_to_pgx examples/datatype/datatype.pg output/datatype

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // USAGE: $ node pg_to_pgx.js <pg_file> <prefix>
 // EXAMPLE: $ node pg_to_pgx.js example/musician.pg output/musician/musician
 // OUTPUT_FILES: <prefix>.opv <prefix>.ope <prefix>.json
@@ -7,7 +9,7 @@ var prefix = process.argv[3];
 
 var fs = require('fs');
 var readline = require('readline');
-var pg = require('./src/pg_to.js');
+var pg = require('./pg_to.js');
 
 var rs = fs.createReadStream(pgp_file);
 var rl = readline.createInterface(rs, {});
