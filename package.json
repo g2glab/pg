@@ -12,6 +12,7 @@
   "bin": {
     "pg_to_pgx": "src/pg_to_pgx.js",
     "pg_to_neo": "src/pg_to_neo.js",
-    "pg_to_dot": "src/pg_to_dot.js"
+    "pg_to_dot": "src/pg_to_dot.js",
+    "pg_to_aws": "src/pg_to_aws.js"
   }
 }
