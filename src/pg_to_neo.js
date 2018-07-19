@@ -11,10 +11,8 @@ var fs = require('fs');
 var readline = require('readline');
 var pg = require('./pg_to.js');
 
-var node_props = ['type'];
-var edge_props = ['type'];
-var node_props_type = ['string'];
-var edge_props_type = ['string'];
+var node_props = [];
+var edge_props = [];
 
 var path_nodes = prefix + '.neo.nodes';
 var path_edges = prefix + '.neo.edges';
@@ -50,10 +48,8 @@ function listProps(callback) {
           var key = items[i];
           var val = items[i+1];
           var type = pg.evalType(val);
-          if (node_props.indexOf(key) == -1) {
-            var prop = { name: key, type: type };
-            node_props.push(key);
-            node_props_type.push(prop);
+          if (node_props[key] === undefined) {
+            node_props[key] = type;
           }
         }
       } else {
@@ -63,10 +59,8 @@ function listProps(callback) {
           var key = items[i];
           var val = items[i+1];
           var type = pg.evalType(val);
-          if (edge_props.indexOf(key) == -1) {
-            var prop = { name: key, type: type };
-            edge_props.push(key);
-            edge_props_type.push(prop);
+          if (edge_props[key] === undefined) {
+            edge_props[key] = type;
           }
         }
       }
@@ -78,30 +72,20 @@ function listProps(callback) {
 }
 
 function writeHeaderNodes(callback) {
-  var output = [];
-  output[0] = 'id:ID';
-  for (var i=0; i<node_props.length; i++) {
-    if (node_props[i] == 'type') {
-      output[i + 1] = ':LABEL';
-    } else {
-      output[i + 1] = node_props[i];
-    }
-  }
+  var output = ['id:ID', ':LABEL'];
+  Object.keys(node_props).forEach((key, i) => 
+  {
+    output[i + 2] = key;
+  });
   fs.appendFile(path_nodes, output.join(sep) + '\n', function (err) {});
   callback();
 }
 
 function writeHeaderEdges(callback) {
-  var output = [];
-  output[0] = ':START_ID';
-  output[1] = ':END_ID';
-  for (var i=0; i<edge_props.length; i++) {
-    if (node_props[i] == 'type') {
-      output[i + 2] = ':TYPE';
-    } else {
-      output[i + 2] = edge_props[i];
-    }
-  }
+  var output = [':START_ID', ':END_ID', ':TYPE'];
+  Object.keys(edge_props).forEach((key, i) => {
+    output[i + 3] = key;
+  });
   fs.appendFile(path_edges, output.join(sep) + '\n', function (err) {});
   callback();
 }
@@ -119,38 +103,45 @@ function writeNodesAndEdges(callback) {
       if (pg.isNodeLine(line)) {
         // This line is a node
         var id = items[0];
-        var output = [];
-        output[0] = id;
-        output[1] = types.join(';');
+        var output = [
+          id,
+          types.join(';')
+        ];
+        // For each property, check its index
+        var lineProps = {};
         // For each property, check its index
         for (var i=1; i<items.length-1; i=i+2) {
-          var key = items[i];
-          var val = items[i+1];
-          var index = node_props.indexOf(key);
-          if (index != -1) {
-            output[index + 1] = val;
-          } else {
-            console.log('WARNING: This node property is not defined: ' + key);
-          }
+          lineProps[items[i]] = items[i+1];
         }
+        Object.keys(node_props).forEach((key, i) => {
+          if(lineProps[key] === undefined)
+          {
+            output[i + 2] = '';
+          } else {
+            output[i + 2] = lineProps[key];
+          }
+        });
         fs.appendFile(path_nodes, output.join(sep) + '\n', function (err) {});
       } else {
         // This line is a edge
-        var output = [];
-        output[0] = items[0]; // source node
-        output[1] = items[1]; // target node
-        output[2] = types[0];
+        var output = [
+          items[0], // source node
+          items[1], // target node
+          types[0]
+        ];
         // For each property, add 1 line
-        for (var i=2; i<items.length-1; i=i+2) {
-          var key = items[i];
-          var val = items[i+1];
-          var index = edge_props.indexOf(key);
-          if (index != -1) {
-            output[index + 2] = val;
-          } else {
-            console.log('WARNING: This edge property is not defined: ' + key);
-          }
+        var lineProps = {};
+        for (var i=1; i<items.length-1; i=i+2) {
+          lineProps[items[i]] = items[i+1];
         }
+        Object.keys(edge_props).forEach((key, i) => {
+          if(lineProps[key] === undefined)
+          {
+            output[i + 3] = '';
+          } else {
+            output[i + 3] = lineProps[key];
+          }
+        });
         fs.appendFile(path_edges, output.join(sep) + '\n', function (err) {});
       }
     }
