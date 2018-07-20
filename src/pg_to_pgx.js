@@ -78,7 +78,7 @@ rl.on('line', function(line) {
       // This line is a edge
       cnt_edges++;
       var label = types[0].replace(/"/g,'');
-      if (items.length == 3) {
+      if (items.length == 2) {
         // When this edge has no property
         var output = [];
         output[0] = cnt_edges; // edge id
