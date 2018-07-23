@@ -131,7 +131,7 @@ function writeNodesAndEdges(callback) {
         ];
         // For each property, add 1 line
         var lineProps = {};
-        for (var i=1; i<items.length-1; i=i+2) {
+        for (var i=2; i<items.length-1; i=i+2) {
           lineProps[items[i]] = items[i+1];
         }
         Object.keys(edge_props).forEach((key, i) => {
