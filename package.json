@@ -10,9 +10,9 @@
     "mocha": "^5.2.0"
   },
   "bin": {
-    "pg_to_pgx": "src/pg_to_pgx.js",
-    "pg_to_neo": "src/pg_to_neo.js",
-    "pg_to_dot": "src/pg_to_dot.js",
-    "pg_to_aws": "src/pg_to_aws.js"
+    "pg2pgx": "src/pg_to_pgx.js",
+    "pg2neo": "src/pg_to_neo.js",
+    "pg2dot": "src/pg_to_dot.js",
+    "pg2aws": "src/pg_to_aws.js"
   }
 }
