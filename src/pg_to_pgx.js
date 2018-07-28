@@ -37,10 +37,10 @@ function flatten(array) {
 }
 
 rl.on('line', function(line) {
-  if (line.charAt(0) != '#') {
+  if (line.charAt(0) != '#' && line != '') {
     var types;
     [line, types] = pg.extractTypes(line);
-    var items = line.match(/"[^"]+"|[^\s:]+/g);
+    var items = line.match(/"[^"]*"|[^\s:]+/g);
     pg.checkItems(items);
     //items = items.map(item => item.replace(/"/g,'')); // remove double quotes
     //types = types.map(type => type.replace(/"/g,'')); // remove double quotes

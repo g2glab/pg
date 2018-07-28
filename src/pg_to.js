@@ -7,7 +7,7 @@ exports.checkItems = function (items) {
 }
 
 exports.isProp = function (str) {
-  arr = str.match(/\w+|"[^"]+"/g);
+  var arr = str.match(/\w+|"[^"]+"/g);
   if (arr.length > 1 && arr[0] != '') {
     return true;
   } else {
@@ -38,10 +38,18 @@ exports.isNodeLine = function (line) {
   var tokens = line.split(/\s+/);
   if (tokens.length <= 1) return true;
   var str = tokens[1]; // the second item in the line
-  if (isDoubleQuoted(str)) {
-    return false;
-  } else {
+  if (isPropertyKV(str)) {
     return true;
+  } else {
+    return false;
+  }
+}
+
+function isPropertyKV(str) {
+  if (str.match(/".*":".*"/) || str.match(/".*":[^"]*/) || str.match(/[^"]*:".*"/) || str.match(/[^"]*:[^"]*/)) {
+    return true;
+  } else {
+    return false;
   }
 }
 
