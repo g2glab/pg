@@ -135,7 +135,7 @@ function createLoadConfig() {
       load_edge_label:true
     }
   };
-  fs.appendFile(file_config, JSON.stringify(config), function (err) {});
+  fs.appendFile(file_config, JSON.stringify(config, null, 2), function (err) {});
   console.log('"' + file_config + '" has been created.');
 }
 
