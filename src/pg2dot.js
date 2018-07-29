@@ -9,7 +9,7 @@ var prefix = process.argv[3];
 
 var fs = require('fs');
 var readline = require('readline');
-var pg = require('./pg_to.js');
+var pg = require('./pg2.js');
 
 var rs = fs.createReadStream(pg_file);
 var rl = readline.createInterface(rs, {});
