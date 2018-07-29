@@ -46,7 +46,7 @@ exports.isNodeLine = function (line) {
 }
 
 function isPropertyKV(str) {
-  if (str.match(/".*":".*"/) || str.match(/".*":[^"]*/) || str.match(/[^"]*:".*"/) || str.match(/[^"]*:[^"]*/)) {
+  if (str.match(/^".*":".*"$/) || str.match(/^".*":[^"]*$/) || str.match(/^[^"]*:".*"$/) || str.match(/^[^"]*:[^"]*$/)) {
     return true;
   } else {
     return false;
