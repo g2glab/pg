@@ -30,4 +30,4 @@ Example:
     "output/datatype.pgx.json" has been created.
     
     $ ls output/datatype.*
-    datatype.pg		datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
+    datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
