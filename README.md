@@ -17,6 +17,7 @@ Command syntax is as follows.
 
     $ pg2pgx <input_pg_file> <output_path_prefix>
     $ pg2neo <input_pg_file> <output_path_prefix>
+    $ pg2aws <input_pg_file> <output_path_prefix>
     $ pg2dot <input_pg_file> <output_path_prefix>
 
 **Example:**
