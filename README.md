@@ -30,3 +30,8 @@ Example:
     
     $ ls output/datatype.*
     datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
+
+## Docker
+
+    $ docker pull ryotas/pg:0.1.0
+    $ docker run -it -v `pwd`:/tmp ryotas/pg:0.1.0 pg2pgx /tmp/data.pg /tmp/data
