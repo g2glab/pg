@@ -1,27 +1,29 @@
 # PG
 
-Plain Property Graph Format
+version 0.1.0
 
-## Getting Started
+## Pre-requirement
 
-Go into the project directory.
+* Git
+* Node
+* Jena (+ Java)　* optional
 
+## Install
+
+    $ git clone -b v0.1.0 https://github.com/g2gml/pg.git
     $ cd pg
-
-Install modules by npm.
-
     $ npm install
     $ npm link
 
-Command syntax is as follows.
+## Run
 
     $ pg2pgx <input_pg_file> <output_path_prefix>
     $ pg2neo <input_pg_file> <output_path_prefix>
     $ pg2aws <input_pg_file> <output_path_prefix>
     $ pg2dot <input_pg_file> <output_path_prefix>
 
-**Example:**
-
-Execute an example to create PGX format files from a pg file.
+Example:
 
     $ pg2pgx examples/datatype/datatype.pg output/datatype
+    $ ls datatype.*
+    datatype.pg		datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
