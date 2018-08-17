@@ -25,5 +25,9 @@ version 0.1.0
 Example:
 
     $ pg2pgx examples/datatype/datatype.pg output/datatype
-    $ ls datatype.*
+    "output/datatype.pgx.nodes" has been created.
+    "output/datatype.pgx.edges" has been created.
+    "output/datatype.pgx.json" has been created.
+    
+    $ ls output/datatype.*
     datatype.pg		datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
