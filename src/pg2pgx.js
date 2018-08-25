@@ -32,85 +32,16 @@ fs.writeFile(file_nodes, '', function (err) {});
 fs.writeFile(file_edges, '', function (err) {});
 fs.writeFile(file_config, '', function (err) {});
 
-function flatten(array) {
-  return Array.prototype.concat.apply([], array);
-}
-
 rl.on('line', function(line) {
   if (line.charAt(0) != '#' && line != '') {
     var types;
     [line, types] = pg.extractTypes(line);
-    var items = line.match(/"[^"]*"|[^\s:]+/g);
-    pg.checkItems(items);
-    //items = items.map(item => item.replace(/"/g,'')); // remove double quotes
-    //types = types.map(type => type.replace(/"/g,'')); // remove double quotes
-    if (pg.isNodeLine(line)) {
-      // This line is a node
-      var id = items[0].replace(/"/g,'');
-      // For each property, add 1 line
-      items = items.concat(flatten(types.map(type => ['type', type])));
-      cnt_nodes++;
-      if (items.length == 1) {
-        // When this node has no property
-        var output = [];
-        output[0] = id;
-        output[1] = '%20'; // %20 means 'no property' in PGX syntax
-        output = output.concat(format('', 'none'));
-        fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
-      } else {
-        for (var i=1; i<items.length-1; i=i+2) {
-          var key = items[i].replace(/"/g,''); 
-          var val = items[i+1].replace(/"/g,'');
-          var type = pg.evalType(items[i+1]);
-          var output = [];
-          output[0] = id;
-          output[1] = key;
-          output = output.concat(format(val, type));
-          fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
-          if (arr_node_prop.indexOf(key) == -1) {
-            var prop = { name: key, type: type };
-            arr_node_prop.push(key); 
-            arr_node_prop_type.push(prop); 
-          }
-        }
-      }
+    var items = line.match(/"[^"]*"|[^\s:]+|:/g); // double quoted OR string (no space or colon) OR just a colon
+    if (items[2]==":") {
+      addNodeLine(items);
     } else {
-      // This line is a edge
-      cnt_edges++;
       var label = types[0].replace(/"/g,'');
-      if (items.length == 2) {
-        // When this edge has no property
-        var output = [];
-        output[0] = cnt_edges; // edge id
-        output[1] = items[0].replace(/"/g,''); // source node
-        output[2] = items[1].replace(/"/g,''); // target node
-        output[3] = label;
-        output[4] = '%20';
-        output = output.concat(format('', 'none'));
-        fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
-      } else {
-        // For each property, add 1 line
-        for (var i=2; i<items.length-1; i=i+2) {
-          var key = items[i].replace(/"/g,''); 
-          var val = items[i+1].replace(/"/g,'');
-          if (key != 'type') {
-            var output = [];
-            output[0] = cnt_edges; // edge id
-            output[1] = items[0].replace(/"/g,''); // source node
-            output[2] = items[1].replace(/"/g,''); // target node
-            output[3] = label;
-            output[4] = key;
-            var type = pg.evalType(items[i+1]);
-            output = output.concat(format(val, type));
-            fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
-            if (arr_edge_prop.indexOf(key) == -1) {
-              var prop = { name: key, type: type };
-              arr_edge_prop.push(key); 
-              arr_edge_prop_type.push(prop); 
-            }
-          }
-        }
-      }
+      addEdgeLine(items, label);
     }
   }
 });
@@ -120,6 +51,80 @@ rl.on('close', function() {
   console.log('"' + file_edges + '" has been created.');
   createLoadConfig();
 });
+
+function addNodeLine(items) {
+  cnt_nodes++;
+  var id = items[0].replace(/"/g,'');
+  // For each property, add 1 line
+  //items = items.concat(flatten(types.map(type => ['type', type])));
+  if (items.length == 1) {
+    // When this node has no property
+    var output = [];
+    output[0] = id;
+    output[1] = '%20'; // %20 means 'no property' in PGX syntax
+    output = output.concat(format('', 'none'));
+    fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
+  } else {
+    for (var i=1; i<items.length-1; i=i+3) {
+      var key = items[i].replace(/"/g,''); 
+      var val = items[i+2].replace(/"/g,'');
+      var type = pg.evalType(items[i+2]);
+      var output = [];
+      output[0] = id;
+      output[1] = key;
+      output = output.concat(format(val, type));
+      fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
+      if (arr_node_prop.indexOf(key) == -1) {
+        var prop = { name: key, type: type };
+        arr_node_prop.push(key); 
+        arr_node_prop_type.push(prop); 
+      }
+    }
+  }
+}
+
+function addEdgeLine(items, label) {
+  cnt_edges++;
+  if (items.length == 2) {
+    // When this edge has no property
+    var output = [];
+    output[0] = cnt_edges; // edge id
+    output[1] = items[0].replace(/"/g,''); // source node
+    output[2] = items[1].replace(/"/g,''); // target node
+    output[3] = label;
+    output[4] = '%20';
+    output = output.concat(format('', 'none'));
+    fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
+  } else {
+    // For each property, add 1 line
+    for (var i=2; i<items.length-1; i=i+3) {
+      var key = items[i].replace(/"/g,''); 
+      var val = items[i+2].replace(/"/g,'');
+      if (key != 'type') {
+        var output = [];
+        output[0] = cnt_edges; // edge id
+        output[1] = items[0].replace(/"/g,''); // source node
+        output[2] = items[1].replace(/"/g,''); // target node
+        output[3] = label;
+        output[4] = key;
+        var type = pg.evalType(items[i+2]);
+        output = output.concat(format(val, type));
+        fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
+        if (arr_edge_prop.indexOf(key) == -1) {
+          var prop = { name: key, type: type };
+          arr_edge_prop.push(key); 
+          arr_edge_prop_type.push(prop); 
+        }
+      }
+    }
+  }
+}
+
+/*
+function flatten(array) {
+  return Array.prototype.concat.apply([], array);
+}
+*/
 
 function createLoadConfig() {
   var config = {
