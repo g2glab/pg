@@ -1,26 +1,37 @@
-# PG
+# PG Format and Converters
 
-Plain Property Graph Format
+version 0.1.0
 
-## Getting Started
+## Requirements
 
-Go into the project directory.
+* Git
+* Node
 
+## Install
+
+    $ git clone -b v0.1.0 https://github.com/g2gml/pg.git
     $ cd pg
-
-Install modules by npm.
-
     $ npm install
     $ npm link
 
-Command syntax is as follows.
+## Run
 
-    $ pg_to_pgx <input_pg_file> <output_path_prefix>
-    $ pg_to_neo <input_pg_file> <output_path_prefix>
-    $ pg_to_dot <input_pg_file> <output_path_prefix>
+    $ pg2pgx <input_pg_file> <output_path_prefix>
+    $ pg2neo <input_pg_file> <output_path_prefix>
+    $ pg2aws <input_pg_file> <output_path_prefix>
+    $ pg2dot <input_pg_file> <output_path_prefix>
 
-**Example:**
+Example:
 
-Execute an example to create PGX format files from a pg file.
+    $ pg2pgx examples/datatype/datatype.pg output/datatype
+    "output/datatype.pgx.nodes" has been created.
+    "output/datatype.pgx.edges" has been created.
+    "output/datatype.pgx.json" has been created.
+    
+    $ ls output/datatype.*
+    datatype.pgx.edges	datatype.pgx.json	datatype.pgx.nodes
 
-    $ pg_to_pgx examples/datatype/datatype.pg output/datatype
+## Docker
+
+    $ docker pull ryotas/pg:0.1.0
+    $ docker run -v `pwd`:/tmp ryotas/pg:0.1.0 pg2pgx /tmp/data.pg /tmp/data
