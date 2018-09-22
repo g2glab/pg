@@ -33,5 +33,18 @@ Example:
 
 ## Docker
 
-    $ docker pull ryotas/pg:0.1.0
-    $ docker run -v `pwd`:/tmp ryotas/pg:0.1.0 pg2pgx /tmp/data.pg /tmp/data
+    $ docker pull g2gml/pg:0.1.0
+    $ docker run -v `pwd`:/shared g2gml/pg:0.1.0 pg2pgx /shared/data.pg /shared/data
+
+For development using Docker container:
+
+    $ docker run -it --name pg -v `pwd`:/tmp g2gml/pg:0.1.0 /bin/bash
+    $ cd pg
+
+    $ git pull origin master
+    $ apt-get update
+    $ apt-get install -y vim
+
+    $ docker start pg
+    $ docker attach pg
+
