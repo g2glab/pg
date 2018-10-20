@@ -1,0 +1,43 @@
+{
+  "vertex_uri_list": [
+    "datatype.pgx.nodes"
+  ],
+  "edge_uri_list": [
+    "datatype.pgx.edges"
+  ],
+  "format": "flat_file",
+  "node_id_type": "string",
+  "edge_label": true,
+  "vertex_props": [
+    {
+      "name": "prop_int",
+      "type": "integer"
+    },
+    {
+      "name": "prop_double",
+      "type": "double"
+    },
+    {
+      "name": "prop_string",
+      "type": "string"
+    }
+  ],
+  "edge_props": [
+    {
+      "name": "prop_int",
+      "type": "integer"
+    },
+    {
+      "name": "prop_double",
+      "type": "double"
+    },
+    {
+      "name": "prop_string",
+      "type": "string"
+    }
+  ],
+  "separator": ",",
+  "loading": {
+    "load_edge_label": true
+  }
+}

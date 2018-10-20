@@ -1,36 +1,49 @@
 #!/usr/bin/env node
 
-// USAGE: $ node pg_to_pgx.js <pg_file> <prefix>
-// EXAMPLE: $ node pg_to_pgx.js example/musician.pg output/musician/musician
-// OUTPUT_FILES: <prefix>.opv <prefix>.ope <prefix>.json
-
-var pgp_file = process.argv[2];
-var prefix = process.argv[3];
+// USAGE: $ node pg2pgx.js <pg_file_path> <output_file_prefix>
+// EXAMPLE: $ node pg2pgx.js example/musician.pg output/musician/musician
+// OUTPUT_FILES: <prefix>.pgx.nodes <prefix>.pgx.edges <prefix>.json
 
 var fs = require('fs');
 var readline = require('readline');
+var commander = require('commander');
 var pg = require('./pg2.js');
 
-var rs = fs.createReadStream(pgp_file);
-var rl = readline.createInterface(rs, {});
+commander
+  .version('0.1.0')
+  .arguments('<pg_file_path> <output_file_prefix>')
+  .action(function (pg_file_path, output_file_prefix) {
+    filePg = pg_file_path;
+    prefix = output_file_prefix;
+    console.log(filePg);
+  })
+  .parse(process.argv);
 
-var cnt_nodes = 0;
-var cnt_edges = 0;
+if (commander.args.length === 0) {
+  console.error("Error: no argument is given!");
+  commander.help();
+}
 
-var arr_node_prop = [];
-var arr_edge_prop = [];
-var arr_node_prop_type = [];
-var arr_edge_prop_type = [];
+var cntNodes = 0;
+var cntEdges = 0;
 
-var file_nodes = prefix + '.pgx.nodes';
-var file_edges = prefix + '.pgx.edges';
-var file_config = prefix + '.pgx.json';
+var arrNodeProp = [];
+var arrEdgeProp = [];
+var arrNodePropType = [];
+var arrEdgePropType = [];
+
+var fileNodes = prefix + '.pgx.nodes';
+var fileEdges = prefix + '.pgx.edges';
+var fileConfig = prefix + '.pgx.json';
 
 var sep = ',';
 
-fs.writeFile(file_nodes, '', function (err) {});
-fs.writeFile(file_edges, '', function (err) {});
-fs.writeFile(file_config, '', function (err) {});
+var rs = fs.createReadStream(filePg);
+var rl = readline.createInterface(rs, {});
+
+fs.writeFile(fileNodes, '', function (err) {});
+fs.writeFile(fileEdges, '', function (err) {});
+fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
   if (line.charAt(0) != '#' && line != '') {
@@ -47,13 +60,13 @@ rl.on('line', function(line) {
 });
 
 rl.on('close', function() {
-  console.log('"' + file_nodes + '" has been created.');
-  console.log('"' + file_edges + '" has been created.');
+  console.log('"' + fileNodes + '" has been created.');
+  console.log('"' + fileEdges + '" has been created.');
   createLoadConfig();
 });
 
 function addNodeLine(items) {
-  cnt_nodes++;
+  cntNodes++;
   var id = items[0].replace(/"/g,'');
   // For each property, add 1 line
   //items = items.concat(flatten(types.map(type => ['type', type])));
@@ -63,7 +76,7 @@ function addNodeLine(items) {
     output[0] = id;
     output[1] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
-    fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
+    fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
     for (var i=1; i<items.length-1; i=i+3) {
       var key = items[i].replace(/"/g,''); 
@@ -73,28 +86,28 @@ function addNodeLine(items) {
       output[0] = id;
       output[1] = key;
       output = output.concat(format(val, type));
-      fs.appendFile(file_nodes, output.join(sep) + '\n', function (err) {});
-      if (arr_node_prop.indexOf(key) == -1) {
+      fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+      if (arrNodeProp.indexOf(key) == -1) {
         var prop = { name: key, type: type };
-        arr_node_prop.push(key); 
-        arr_node_prop_type.push(prop); 
+        arrNodeProp.push(key); 
+        arrNodePropType.push(prop); 
       }
     }
   }
 }
 
 function addEdgeLine(items, label) {
-  cnt_edges++;
+  cntEdges++;
   if (items.length == 2) {
     // When this edge has no property
     var output = [];
-    output[0] = cnt_edges; // edge id
+    output[0] = cntEdges; // edge id
     output[1] = items[0].replace(/"/g,''); // source node
     output[2] = items[1].replace(/"/g,''); // target node
     output[3] = label;
     output[4] = '%20';
     output = output.concat(format('', 'none'));
-    fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
+    fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
   } else {
     // For each property, add 1 line
     for (var i=2; i<items.length-1; i=i+3) {
@@ -102,18 +115,18 @@ function addEdgeLine(items, label) {
       var val = items[i+2].replace(/"/g,'');
       if (key != 'type') {
         var output = [];
-        output[0] = cnt_edges; // edge id
+        output[0] = cntEdges; // edge id
         output[1] = items[0].replace(/"/g,''); // source node
         output[2] = items[1].replace(/"/g,''); // target node
         output[3] = label;
         output[4] = key;
         var type = pg.evalType(items[i+2]);
         output = output.concat(format(val, type));
-        fs.appendFile(file_edges, output.join(sep) + '\n', function (err) {});
-        if (arr_edge_prop.indexOf(key) == -1) {
+        fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
+        if (arrEdgeProp.indexOf(key) == -1) {
           var prop = { name: key, type: type };
-          arr_edge_prop.push(key); 
-          arr_edge_prop_type.push(prop); 
+          arrEdgeProp.push(key); 
+          arrEdgePropType.push(prop); 
         }
       }
     }
@@ -128,20 +141,20 @@ function flatten(array) {
 
 function createLoadConfig() {
   var config = {
-    vertex_uri_list: [ filename(file_nodes) ]
-  , edge_uri_list: [ filename(file_edges) ]
+    vertex_uri_list: [ filename(fileNodes) ]
+  , edge_uri_list: [ filename(fileEdges) ]
   , format: "flat_file"
   , node_id_type: "string"
   , edge_label: true
-  , vertex_props: arr_node_prop_type
-  , edge_props: arr_edge_prop_type
+  , vertex_props: arrNodePropType
+  , edge_props: arrEdgePropType
   , separator: sep
   , loading: {
       load_edge_label:true
     }
   };
-  fs.appendFile(file_config, JSON.stringify(config, null, 2), function (err) {});
-  console.log('"' + file_config + '" has been created.');
+  fs.appendFile(fileConfig, JSON.stringify(config, null, 2), function (err) {});
+  console.log('"' + fileConfig + '" has been created.');
 }
 
 function filename(path) {
