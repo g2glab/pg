@@ -45,13 +45,14 @@ Prepare data
 Run pg2pgx command for example
 
     $ docker pull g2gml/pg:0.1.0
-    $ docker run -v `pwd`:/shared g2gml/pg:0.1.0 pg2pgx /shared/data.pg /shared/data
+    $ alias pg2pgx='docker run --rm -v $PWD:/shared g2gml/pg:0.1.0 pg2pgx'
+    $ pg2pgx data.pg data
 
 For development:
 
 Run bash on the container
 
-    $ docker run -it --name pg -v `pwd`:/tmp g2gml/pg:0.1.0 /bin/bash
+    $ docker run -it --name pg -v $PWD:/shared g2gml/pg:0.1.0 /bin/bash
     $ cd pg
 
 Pull the latest master and install vim etc.
