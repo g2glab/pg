@@ -35,7 +35,7 @@ exports.extractTypes = function (line) {
 
 // This method assums to be called after extractTypes
 exports.isNodeLine = function (line) {
-  var tokens = line.split(/\s+/);
+  var tokens = splitBySpace(line);
   if (tokens.length <= 1) return true;
   var str = tokens[1]; // the second item in the line
   if (isPropertyKV(str)) {
@@ -43,6 +43,34 @@ exports.isNodeLine = function (line) {
   } else {
     return false;
   }
+}
+
+function splitBySpace(str) {
+  var inQuote = false;
+  var afterQuote = false;
+  var tokens = [];
+  var token = '';
+  for (var i = 0; i < str.length; i++) {
+    var c = str[i];
+    if(afterQuote && c === '"') {
+      tokens[tokens.length - 1] += '"';
+      afterQuote = false;
+      continue;
+    }
+    afterQuote = false;
+    if(c === '"'){
+      inQuote = !inQuote;
+      afterQuote = true;
+    }
+    if(!inQuote && c.match(/\s/)){
+      if(token != '') tokens.push(token);
+      token = '';
+    }else{
+      token += c;
+    }
+  }
+  if(token != '') tokens.push(token);
+  return tokens;
 }
 
 function isPropertyKV(str) {
