@@ -1,6 +1,6 @@
 # PG Format and Converters
 
-version 0.1.0
+version 0.2.0
 
 ## Quick Start
 
@@ -13,7 +13,7 @@ Create sample data:
 
 Run pg2pgx command for example:
 
-    $ alias pg2pgx='docker run --rm -v $PWD:/shared g2gml/pg:0.1.0 pg2pgx'
+    $ alias pg2pgx='docker run --rm -v $PWD:/shared g2gml/pg:0.2.0 pg2pgx'
     $ pg2pgx data.pg data
     "data.pgx.nodes" has been created.
     "data.pgx.edges" has been created.
@@ -35,7 +35,7 @@ Requirements:
 
 Install:
 
-    $ git clone -b v0.1.0 https://github.com/g2gml/pg.git
+    $ git clone -b v0.2.0 https://github.com/g2gml/pg.git
     $ cd pg
     $ npm install
     $ npm link
