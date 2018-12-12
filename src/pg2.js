@@ -1,4 +1,31 @@
+var version = '0.2.0'
+
+exports.isLineRead = function (line) {
+  if (line.charAt(0) != '#' && line != '') {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+exports.extractItems = function (line) {
+  var regexNode = /^("[^"]+"|\S+)/;
+  var regexEdge = /^("[^"]+"|\S+)\s+("[^"]+"|[^:]+)/;
+  var id_1, id_2;
+  if (!(result = regexEdge.exec(line))) {
+    id_1 = regexNode.exec(line)[1];
+    id_2 = null;
+  } else {
+    id_1 = result[1];
+    id_2 = result[2];
+  }
+  var types = globalGroupMatch(line, /\s:(\S+|"[^"]+")/g).map((m) => m[1].replace(/"/g,''));
+  var props = globalGroupMatch(line, /\s("[^"]+"|\S+):("[^"]*"|\S*)/g).map((m) => [m[1].replace(/"/g,''), m[2].replace(/"/g,'')]);
+  return [id_1, id_2, types, props];
+}
+
 exports.checkItems = function (items) {
+  console.log('PG: ' + items);
   for(var i=0; i<items.length; i++){
     if (items[i].match(/\t/)) {
       console.log('WARNING: This item has unexpected tab(\\t): [' + items[i] + '] after [' + items[i-1] + ']');

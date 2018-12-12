@@ -1,0 +1,63 @@
+{
+  "vertex_uri_list": [
+    "c360.pgx.nodes"
+  ],
+  "edge_uri_list": [
+    "c360.pgx.edges"
+  ],
+  "format": "flat_file",
+  "node_id_type": "string",
+  "edge_label": true,
+  "vertex_props": [
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "age",
+      "type": "integer"
+    },
+    {
+      "name": "location",
+      "type": "string"
+    },
+    {
+      "name": "gender",
+      "type": "string"
+    },
+    {
+      "name": "student",
+      "type": "string"
+    },
+    {
+      "name": "account_no",
+      "type": "string"
+    },
+    {
+      "name": "open",
+      "type": "string"
+    },
+    {
+      "name": "owner",
+      "type": "string"
+    },
+    {
+      "name": "released",
+      "type": "string"
+    }
+  ],
+  "edge_props": [
+    {
+      "name": "amount",
+      "type": "integer"
+    },
+    {
+      "name": "date",
+      "type": "string"
+    }
+  ],
+  "separator": ",",
+  "loading": {
+    "load_edge_label": true
+  }
+}

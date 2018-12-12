@@ -10,7 +10,7 @@ var commander = require('commander');
 var pg = require('./pg2.js');
 
 commander
-  .version('0.1.0')
+  .version(pg.version)
   .arguments('<pg_file_path> <output_file_prefix>')
   .action(function (pg_file_path, output_file_prefix) {
     filePg = pg_file_path;
@@ -46,15 +46,12 @@ fs.writeFile(fileEdges, '', function (err) {});
 fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
-  if (line.charAt(0) != '#' && line != '') {
-    var types;
-    [line, types] = pg.extractTypes(line);
-    var items = line.match(/"[^"]*"|[^\s:]+|:/g); // double quoted OR string (no space or colon) OR just a colon
-    if (items[2]==":") {
-      addNodeLine(items);
+  if (pg.isLineRead(line)) {
+    var [id_1, id_2, types, props] = pg.extractItems(line);
+    if (id_2 == null) {
+      addNodeLine(id_1, props);
     } else {
-      var label = types[0].replace(/"/g,'');
-      addEdgeLine(items, label);
+      addEdgeLine(id_1, id_2, types[0], props);
     }
   }
 });
@@ -65,79 +62,65 @@ rl.on('close', function() {
   createLoadConfig();
 });
 
-function addNodeLine(items) {
+function addNodeLine(id, props) {
   cntNodes++;
-  var id = items[0].replace(/"/g,'');
-  // For each property, add 1 line
-  //items = items.concat(flatten(types.map(type => ['type', type])));
-  if (items.length == 1) {
-    // When this node has no property
+  if (props.length == 0) { // When this node has no property
     var output = [];
     output[0] = id;
     output[1] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
     fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
-    for (var i=1; i<items.length-1; i=i+3) {
-      var key = items[i].replace(/"/g,''); 
-      var val = items[i+2].replace(/"/g,'');
-      var type = pg.evalType(items[i+2]);
+    for (var i=0; i<props.length; i++) { // For each property, add 1 line
+      var key = props[i][0]; 
+      var val = props[i][1];
+      var type = pg.evalType(val);
       var output = [];
       output[0] = id;
       output[1] = key;
       output = output.concat(format(val, type));
       fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
       if (arrNodeProp.indexOf(key) == -1) {
-        var prop = { name: key, type: type };
+        var propType = { name: key, type: type };
         arrNodeProp.push(key); 
-        arrNodePropType.push(prop); 
+        arrNodePropType.push(propType); 
       }
     }
   }
 }
 
-function addEdgeLine(items, label) {
+function addEdgeLine(id_1, id_2, label, props) {
   cntEdges++;
-  if (items.length == 2) {
-    // When this edge has no property
+  if (props.length == 0) { // When this edge has no property
     var output = [];
     output[0] = cntEdges; // edge id
-    output[1] = items[0].replace(/"/g,''); // source node
-    output[2] = items[1].replace(/"/g,''); // target node
+    output[1] = id_1; // source node
+    output[2] = id_2; // target node
     output[3] = label;
-    output[4] = '%20';
+    output[4] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
     fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
   } else {
-    // For each property, add 1 line
-    for (var i=2; i<items.length-1; i=i+3) {
-      var key = items[i].replace(/"/g,''); 
-      var val = items[i+2].replace(/"/g,'');
-      if (key != 'type') {
-        var output = [];
-        output[0] = cntEdges; // edge id
-        output[1] = items[0].replace(/"/g,''); // source node
-        output[2] = items[1].replace(/"/g,''); // target node
-        output[3] = label;
-        output[4] = key;
-        var type = pg.evalType(items[i+2]);
-        output = output.concat(format(val, type));
-        fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
-        if (arrEdgeProp.indexOf(key) == -1) {
-          var prop = { name: key, type: type };
-          arrEdgeProp.push(key); 
-          arrEdgePropType.push(prop); 
-        }
+    for (var i=0; i<props.length; i++) { // For each property, add 1 line
+      var key = props[i][0]; 
+      var val = props[i][1];
+      var type = pg.evalType(val);
+      var output = [];
+      output[0] = cntEdges; // edge id
+      output[1] = id_1; // source node
+      output[2] = id_2; // target node
+      output[3] = label;
+      output[4] = key;
+      output = output.concat(format(val, type));
+      fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
+      if (arrEdgeProp.indexOf(key) == -1) {
+        var propType = { name: key, type: type };
+        arrEdgeProp.push(key); 
+        arrEdgePropType.push(propType); 
       }
     }
   }
 }
-
-/*
-function flatten(array) {
-  return Array.prototype.concat.apply([], array);
-}
-*/
 
 function createLoadConfig() {
   var config = {
