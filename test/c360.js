@@ -14,10 +14,8 @@ describe('pg2pgx', function() {
       assert.pathExists('./output/c360.pgx.json');
     });
     it('generates expected file: .pgx.nodes', function() {
-      //childProcess.execSync('sort ./output/c360.pgx.nodes > ./output/c360.pgx.nodes.sorted');
-      //childProcess.execSync('sort ./examples/c360/c360.pgx.nodes > ./examples/c360/c360.pgx.nodes.sorted');
       var result = fs.readFileSync("./output/c360.pgx.nodes");
-      var expect = fs.readFileSync("./examples/c360/c360.pgx.nodes.sorted");
+      var expect = fs.readFileSync("./examples/c360/c360.pgx.nodes");
       assert.deepEqual(result, expect);
     });
     it('generates expected file: .pgx.edges', function() {
@@ -40,6 +38,18 @@ describe('pg2neo', function() {
       assert.pathExists('./output/c360.neo.nodes');
       assert.pathExists('./output/c360.neo.edges');
     });
+    it('generates expected file: .neo.nodes', function() {
+      var result = fs.readFileSync("./output/c360.neo.nodes");
+      var expect = fs.readFileSync("./examples/c360/c360.neo.nodes");
+      assert.deepEqual(result, expect);
+    });
+    it('generates expected file: .neo.edges', function() {
+      childProcess.execSync('sort ./output/c360.neo.edges > /tmp/result');
+      childProcess.execSync('sort ./examples/c360/c360.neo.edges > /tmp/expect');
+      var result = fs.readFileSync("/tmp/result");
+      var expect = fs.readFileSync("/tmp/expect");
+      assert.deepEqual(result, expect);
+    });
   });
 });
 
@@ -49,6 +59,18 @@ describe('pg2aws', function() {
     it('generates 2 files: .aws.nodes .aws.edges', function() {
       assert.pathExists('./output/c360.aws.nodes');
       assert.pathExists('./output/c360.aws.edges');
+    });
+    it('generates expected file: .aws.nodes', function() {
+      var result = fs.readFileSync("./output/c360.aws.nodes");
+      var expect = fs.readFileSync("./examples/c360/c360.aws.nodes");
+      assert.deepEqual(result, expect);
+    });
+    it('generates expected file: .aws.edges', function() {
+      childProcess.execSync('sort ./output/c360.aws.edges > /tmp/result');
+      childProcess.execSync('sort ./examples/c360/c360.aws.edges > /tmp/expect');
+      var result = fs.readFileSync("/tmp/result");
+      var expect = fs.readFileSync("/tmp/expect");
+      assert.deepEqual(result, expect);
     });
   });
 });

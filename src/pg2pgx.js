@@ -2,22 +2,12 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var commander = require('commander');
 var pg = require('./pg2.js');
 
-commander
-  .version(pg.version)
-  .arguments('<pg_file_path> <output_file_prefix>')
-  .action(function (pg_file_path, output_file_prefix) {
-    filePg = pg_file_path;
-    prefix = output_file_prefix;
-    console.log(filePg);
-  })
-  .parse(process.argv);
-
-if (commander.args.length === 0) {
+pg.commander;
+if (pg.commander.args.length === 0) {
   console.error("Error: no argument is given!");
-  commander.help();
+  pg.commander.help();
 }
 
 var cntNodes = 0;
@@ -34,7 +24,7 @@ var fileConfig = prefix + '.pgx.json';
 
 var sep = ',';
 
-var rs = fs.createReadStream(filePg);
+var rs = fs.createReadStream(pathPg);
 var rl = readline.createInterface(rs, {});
 
 fs.writeFile(fileNodes, '', function (err) {});

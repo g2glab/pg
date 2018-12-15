@@ -1,4 +1,14 @@
 var version = '0.2.1'
+var commander = require('commander');
+
+exports.commander = commander
+  .version(version)
+  .arguments('<pg_file_path> <output_file_prefix>')
+  .action(function (pg_file_path, output_file_prefix) {
+    pathPg = pg_file_path;
+    prefix = output_file_prefix;
+  })
+  .parse(process.argv);
 
 exports.isLineRead = function (line) {
   if (line.charAt(0) != '#' && line != '') {
@@ -30,18 +40,6 @@ exports.checkItems = function (items) {
   for(var i=0; i<items.length; i++){
     if (items[i].match(/\t/)) {
       console.log('WARNING: This item has unexpected tab(\\t): [' + items[i] + '] after [' + items[i-1] + ']');
-    }
-  }
-}
-
-exports.evalType = function (str) {
-  if (isDoubleQuoted(str) || isNaN(str)) {
-    return 'string';
-  } else {
-    if (str.match(/\./)) {
-      return 'double';
-    } else {
-      return 'integer';
     }
   }
 }

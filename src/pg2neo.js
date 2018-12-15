@@ -2,18 +2,13 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var commander = require('commander');
 var pg = require('./pg2.js');
 
-commander
-  .version('0.2.1')
-  .arguments('<pg_file_path> <output_file_prefix>')
-  .action(function (pg_file_path, output_file_prefix) {
-    filePg = pg_file_path;
-    prefix = output_file_prefix;
-    console.log(filePg);
-  })
-  .parse(process.argv);
+pg.commander;
+if (pg.commander.args.length === 0) {
+  console.error("Error: no argument is given!");
+  pg.commander.help();
+}
 
 var nodeProps = [];
 var edgeProps = [];
@@ -38,7 +33,7 @@ listProps(function() {
 });
 
 function listProps(callback) {
-  var rs = fs.createReadStream(filePg);
+  var rs = fs.createReadStream(pathPg);
   var rl = readline.createInterface(rs, {});
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
@@ -87,7 +82,7 @@ function writeHeaderEdges(callback) {
 
 
 function writeNodesAndEdges(callback) {
-  var rs = fs.createReadStream(filePg);
+  var rs = fs.createReadStream(pathPg);
   var rl = readline.createInterface(rs, {});
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {

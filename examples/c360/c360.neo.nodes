@@ -1,0 +1,16 @@
+id:ID,:LABEL,name,age,location,gender,student,account_no,open,owner,released
+c01,customer,John,10,Boston,,,,,,
+c02,customer,Mary,,,F,,,,,
+c03,customer,Jill,,Boston,,,,,,
+c04,customer,Todd,,,,true,,,,
+a01,account,,,,,,xxx-yyy-201,2015-10-04,John,
+a02,account,,,,,,xxx-yyy-202,2012-09-13,Mary,
+a03,account,,,,,,xxx-yyy-203,2016-02-04,Jill,
+a04,account,,,,,,xxx-yyy-204,2018-01-05,Todd,
+m01,merchant,iPhone5,,,,,,,,02/21/2012
+m02,merchant,Kindle_Fire,,,,,,,,
+m03,merchant,Fitbit_Flex_Wireless,,,,,,,,
+m04,merchant,Harry_Potter,,,,,,,,
+m05,merchant,Hobbit,,,,,,,,
+a11,account,,,,,,xxx-zzz-001,,,
+a12,account,,,,,,xxx-zzz-002,,,
