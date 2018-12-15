@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 
-// USAGE: $ node pg2pgx.js <pg_file_path> <output_file_prefix>
-// EXAMPLE: $ node pg2pgx.js example/musician.pg output/musician/musician
-// OUTPUT_FILES: <prefix>.pgx.nodes <prefix>.pgx.edges <prefix>.json
-
 var fs = require('fs');
 var readline = require('readline');
 var commander = require('commander');
@@ -47,19 +43,23 @@ fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
-    var [id_1, id_2, types, props] = pg.extractItems(line);
-    if (id_2 == null) {
-      addNodeLine(id_1, props);
+    var [id1, id2, labels, props] = pg.extractItems(line);
+    if (id2 == null) {
+      addNodeLine(id1[0], props); // Node label is not supported now
     } else {
-      addEdgeLine(id_1, id_2, types[0], props);
+      addEdgeLine(id1[0], id2[0], labels[0], props); // Only one label is supported now
     }
   }
 });
 
 rl.on('close', function() {
-  console.log('"' + fileNodes + '" has been created.');
-  console.log('"' + fileEdges + '" has been created.');
-  createLoadConfig();
+  sort(fileNodes, '-d', function() {
+    console.log('"' + fileNodes + '" has been created.');
+    sort(fileEdges, '-n', function() {
+      console.log('"' + fileEdges + '" has been created.');
+      createLoadConfig();
+    });
+  });
 });
 
 function addNodeLine(id, props) {
@@ -72,9 +72,7 @@ function addNodeLine(id, props) {
     fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
     for (var i=0; i<props.length; i++) { // For each property, add 1 line
-      var key = props[i][0]; 
-      var val = props[i][1];
-      var type = pg.evalType(val);
+      var [key, val, type] = props[i];
       var output = [];
       output[0] = id;
       output[1] = key;
@@ -89,26 +87,24 @@ function addNodeLine(id, props) {
   }
 }
 
-function addEdgeLine(id_1, id_2, label, props) {
+function addEdgeLine(id1, id2, label, props) {
   cntEdges++;
   if (props.length == 0) { // When this edge has no property
     var output = [];
     output[0] = cntEdges; // edge id
-    output[1] = id_1; // source node
-    output[2] = id_2; // target node
+    output[1] = id1; // source node
+    output[2] = id2; // target node
     output[3] = label;
     output[4] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
     fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
   } else {
     for (var i=0; i<props.length; i++) { // For each property, add 1 line
-      var key = props[i][0]; 
-      var val = props[i][1];
-      var type = pg.evalType(val);
+      var [key, val, type] = props[i];
       var output = [];
       output[0] = cntEdges; // edge id
-      output[1] = id_1; // source node
-      output[2] = id_2; // target node
+      output[1] = id1; // source node
+      output[2] = id2; // target node
       output[3] = label;
       output[4] = key;
       output = output.concat(format(val, type));
@@ -185,3 +181,15 @@ function format(str, type) {
   return output;
 };
 
+function sort(file, option, callback) {
+  var fileTmp = file + '.tmp';
+  var spawn = require('child_process').spawn;
+  var sort = spawn('sort', [option, '-o', fileTmp, file]);
+  sort.on('exit', function() {
+    var spawn = require('child_process').spawn;
+    var mv = spawn('mv', [fileTmp, file]);
+    mv.on('exit', function() {
+      callback();
+    });
+  });
+}

@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 
-// USAGE: $ node pg_to_pgx.js <pg_file> <prefix>
-// EXAMPLE: $ node pg_to_pgx.js example/musician.gpg output/musician/musician
-// OUTPUT_FILES: <prefix>.dot
-
 var pg_file = process.argv[2];
 var prefix = process.argv[3];
 
@@ -24,38 +20,27 @@ var dst_path = prefix + '.dot';
 var sep = ',';
 var content = '';
 
-fs.writeFile(dst_path, '', function (err) {});
-
-function flatten(array) {
-  return Array.prototype.concat.apply([], array);
-}
+//fs.writeFile(dst_path, '', function (err) {});
 
 rl.on('line', function(line) {
-  if (line.charAt(0) != '#') {
-    var types;
-    [line, types] = pg.extractTypes(line);
-    var items = line.match(/"[^"]+"|[^\s:]+/g);
-    pg.checkItems(items);
-    items = items.map(item => item.replace(/"/g,'')); // remove double quotes
-    types = types.map(type => type.replace(/"/g,'')); // remove double quotes
-    
-    if (pg.isNodeLine(line)) {
-      var id = items[0];
-      var topLabel = id;
-      var visIndex = items.indexOf('vis_label');
-      if(visIndex >= 0) {
-        topLabel = items[visIndex + 1];
+  if (pg.isLineRead(line)) {
+    var [id_1, id_2, types, props] = pg.extractItems(line);
+    if (id_2 == null) { // Node
+      var topLabel = id_1;
+      var visIndex = props.indexOf('vis_label');
+      if (visIndex >= 0) {
+        topLabel = props[visIndex + 1];
       }
-      content += '"' + id + '" [label="' + types.join(';') + '\\l' + topLabel + '\\l';
-      for (var i=1; i<items.length-1; i=i+2) {
-        if(i == visIndex) continue;
-        content += items[i] + ': ' + items[i+1] + '\\l'; 
+      content += '"' + id_1 + '" [label="' + types.join(';') + '\\l' + topLabel + '\\l';
+      for (var i = 0; i < props.length; i++) {
+        if (i == visIndex) continue;
+        content += props[i][0] + ': ' + props[i][1] + '\\l'; 
       }
       content += '"]\n'
-    } else {
-      content += '"' + items[0] + '" -> "' + items[1] + '" [label="' + types.join(';') + "\\l";
-      for (var i=2; i<items.length-1; i=i+2) {
-        content += items[i] + ': ' + items[i+1] + '\\l'; 
+    } else { // Edge
+      content += '"' + id_1 + '" -> "' + id_2 + '" [label="' + types.join(';') + "\\l";
+      for (var i = 0; i < props.length; i++) {
+        content += props[i][0] + ': ' + props[i][1] + '\\l'; 
       }
       content += '"]\n';
     }

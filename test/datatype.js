@@ -14,10 +14,10 @@ describe('pg2pgx', function() {
       assert.pathExists('./output/datatype.pgx.json');
     });
     it('generates expected file: .pgx.nodes', function() {
-      childProcess.execSync('sort ./output/datatype.pgx.nodes > ./output/datatype.pgx.nodes.sorted');
-      childProcess.execSync('sort ./examples/datatype/datatype.pgx.nodes > ./examples/datatype/datatype.pgx.nodes.sorted');
-      var result = fs.readFileSync("./output/datatype.pgx.nodes.sorted");
-      var expect = fs.readFileSync("./examples/datatype/datatype.pgx.nodes.sorted");
+      //childProcess.execSync('sort ./output/datatype.pgx.nodes > ./output/datatype.pgx.nodes.sorted');
+      //childProcess.execSync('sort ./examples/datatype/datatype.pgx.nodes > ./examples/datatype/datatype.pgx.nodes.sorted');
+      var result = fs.readFileSync("./output/datatype.pgx.nodes");
+      var expect = fs.readFileSync("./examples/datatype/datatype.pgx.nodes");
       assert.deepEqual(result, expect);
     });
     it('generates expected file: .pgx.edges', function() {

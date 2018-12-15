@@ -14,15 +14,13 @@ describe('pg2pgx', function() {
       assert.pathExists('./output/c360.pgx.json');
     });
     it('generates expected file: .pgx.nodes', function() {
-      childProcess.execSync('sort ./output/c360.pgx.nodes > ./output/c360.pgx.nodes.sorted');
-      childProcess.execSync('sort ./examples/c360/c360.pgx.nodes > ./examples/c360/c360.pgx.nodes.sorted');
-      var result = fs.readFileSync("./output/c360.pgx.nodes.sorted");
+      //childProcess.execSync('sort ./output/c360.pgx.nodes > ./output/c360.pgx.nodes.sorted');
+      //childProcess.execSync('sort ./examples/c360/c360.pgx.nodes > ./examples/c360/c360.pgx.nodes.sorted');
+      var result = fs.readFileSync("./output/c360.pgx.nodes");
       var expect = fs.readFileSync("./examples/c360/c360.pgx.nodes.sorted");
       assert.deepEqual(result, expect);
     });
     it('generates expected file: .pgx.edges', function() {
-      childProcess.execSync('sort ./output/c360.pgx.edges > ./output/c360.pgx.edges.sorted');
-      childProcess.execSync('sort ./examples/c360/c360.pgx.edges > ./examples/c360/c360.pgx.edges.sorted');
       var result = fs.readFileSync("./output/c360.pgx.edges");
       var expect = fs.readFileSync("./examples/c360/c360.pgx.edges");
       assert.deepEqual(result, expect);
