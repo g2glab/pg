@@ -35,10 +35,10 @@ rl.on('line', function(line) {
 rl.on('close', function() {
   var exec = require('child_process').exec;
   var cmd;
-  cmd = 'echo \'{\n  "nodes": [\' >> ' + fileJSON
+  cmd = 'echo \'{\n  "nodes":[\' >> ' + fileJSON
       + ' && sed -e "1 s/,/ /" ' + fileNodes + ' >> ' + fileJSON
       + ' && echo \'  ]\' >> ' + fileJSON
-      + ' && echo \', "edges": [\' >> ' + fileJSON
+      + ' && echo \', "edges":[\' >> ' + fileJSON
       + ' && sed -e "1 s/,/ /" ' + fileEdges + ' >> ' + fileJSON
       + ' && echo \'  ]\n}\' >> ' + fileJSON
   exec(cmd, (err, stdout, stderr) => {
@@ -70,7 +70,7 @@ function addNodeLine(id, labels, props) {
 function addEdgeLine(id1, id2, labels, props) {
   var output = [];
   output[0] = dq('@from') + ':' + dq(id1);
-  output[0] = dq('@to') + ':' + dq(id2);
+  output[1] = dq('@to') + ':' + dq(id2);
   for (var i = 0; i < labels.length; i++) {
     output = output.concat(dq('@label') + ':' + dq(labels[i])); 
   }

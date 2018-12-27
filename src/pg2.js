@@ -56,6 +56,10 @@ String.prototype.type = function () {
   }
 }
 
+String.prototype.dq = function () { // Remove double quotes
+  return '"' + this + '"';
+}
+
 String.prototype.rmdq = function () { // Remove double quotes
   return this.replace(/^"(.+)"$/, '$1');
 }

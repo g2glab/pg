@@ -7,5 +7,7 @@ RUN apt-get update && apt-get install -y \
 RUN git clone -b v0.2.1 https://github.com/g2gml/pg.git
  && cd pg && npm install && npm link
 
+RUN cd && echo 'syntax on' > .vimrc
+
 RUN mkdir /shared
 WORKDIR /shared
