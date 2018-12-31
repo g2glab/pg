@@ -30,7 +30,6 @@ fs.writeFile(filePg, '', function (err) {});
 fs.readFile(pathConfig, 'utf-8', function (err, data) {
   if (err) { throw err; }
   config = JSON.parse(data);
-  console.log(config.vertex_props[1].name);
 
   var rs = fs.createReadStream(pathElist);
   var rl = readline.createInterface(rs, {});
@@ -51,8 +50,11 @@ fs.readFile(pathConfig, 'utf-8', function (err, data) {
       } else {              // EDGE
         output[0] = vals[0] // FROM
         output[1] = vals[1] // TO
-        output[2] = ':' + vals[2].replace(/^"(.+)"$/, '$1'); // LABEL
-        var j = 3;
+        var j = 2;
+        if (vals[2]) {
+          output[2] = ':' + vals[2].replace(/^"(.+)"$/, '$1'); // LABEL
+          j++;
+        }
         for (var i = 3; i < vals.length; i++) {
           if (vals[i] != '""' && vals[i] != 0) {
             output[j] = config.edge_props[i - 3].name + ':' +  vals[i];
@@ -65,6 +67,6 @@ fs.readFile(pathConfig, 'utf-8', function (err, data) {
   });
 
   rl.on('close', function() {
-    console.log('"' + filePg + '" has been created.'
+    console.log('"' + filePg + '" has been created.');
   });
 });

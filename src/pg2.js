@@ -20,7 +20,7 @@ exports.isLineRead = function (line) {
 
 exports.extractItems = function (line) {
   var regexNode = /^("[^"]+"|\S+)/;
-  var regexEdge = /^("[^"]+"|\S+)\s+("[^"]+"|[^:]+)\s/;
+  var regexEdge = /^("[^"]+"|\S+)\s+("[^"]+"|[^:]+)(\s|$)/;
   var id1, id2;
   if (!(result = regexEdge.exec(line))) {
     strId1 = regexNode.exec(line)[1];

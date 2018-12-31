@@ -10,40 +10,64 @@ if (pg.commander.args.length === 0) {
   pg.commander.help();
 }
 
-var rs = fs.createReadStream(pathPg);
-var rl = readline.createInterface(rs, {});
-
 var pathDot = prefix + '.dot';
-var sep = ',';
-var content = '';
 
-rl.on('line', function(line) {
-  if (pg.isLineRead(line)) {
-    var [id1, id2, labels, props] = pg.extractItems(line);
-    if (id2 == null) { // Node
-      var topLabel = id1;
-      var visIndex = props.indexOf('vis_label');
-      if (visIndex >= 0) {
-        topLabel = props[visIndex + 1];
+fs.writeFile(pathDot, '', function (err) {});
+
+var graphName = prefix;
+fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
+
+  var rs = fs.createReadStream(pathPg);
+  var rl = readline.createInterface(rs, {});
+
+  rl.on('line', function(line) {
+    if (pg.isLineRead(line)) {
+      var [id1, id2, labels, props] = pg.extractItems(line);
+      if (id2 == null) { // Node
+        addNodeLine(id1, labels, props);
+      } else { // Edge
+        addEdgeLine(id1, id2, labels, props);
       }
-      content += '"' + id1 + '" [label="' + labels.join(';') + '\\l' + topLabel + '\\l';
-      for (var i = 0; i < props.length; i++) {
-        if (i == visIndex) continue;
-        content += props[i][0] + ': ' + props[i][1] + '\\l'; 
-      }
-      content += '"]\n'
-    } else { // Edge
-      content += '"' + id1 + '" -> "' + id2 + '" [label="' + labels.join(';') + "\\l";
-      for (var i = 0; i < props.length; i++) {
-        content += props[i][0] + ': ' + props[i][1] + '\\l'; 
-      }
-      content += '"]\n';
+    }
+  });
+
+  rl.on('close', function() {
+    fs.appendFile(pathDot, '}', function (err) {
+      console.log('"' + pathDot + '" has been created.');
+    });  
+  });
+});
+
+function addNodeLine(id, labels, props) {
+  var output = '';
+  //var strLabel = 'label="' + labels.join(';') + '\\l' + id[0] + '\\l';
+  var strLabel = 'label="' + labels.join(';');
+  var strProps = '';
+  for (var i = 0; i < props.length; i++) {
+    if (props[i][0] == 'vis_label') {
+      strLabel += props[i][1] + '\\l';
+    } else {
+      strProps += ' ' + props[i][0] + '="' + props[i][1] + '"';
     }
   }
-});
+  strLabel += '"';
+  output += '"' + id[0] + '" [' + strLabel + strProps + ']';
+  fs.appendFile(pathDot, output + '\n', function (err) {});
+}
 
-rl.on('close', function() {
-  fs.writeFile(pathDot, 'digraph{\n' + content + '}', function (err) {
-    console.log('"' + pathDot + '" has been created.');
-  });  
-});
+function addEdgeLine(id1, id2, labels, props) {
+  var output = '';
+  //var strLabel = 'label="' + labels.join(';') + '\\l';
+  var strLabel = 'label="' + labels.join(';');
+  var strProps = '';
+  for (var i = 0; i < props.length; i++) {
+    if (props[i][0] == 'vis_label') {
+      strLabel += props[i][1] + '\\l';
+    } else {
+      strProps += ' ' + props[i][0] + '="' + props[i][1] + '"';
+    }
+  }
+  strLabel += '"';
+  output += '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + ']';
+  fs.appendFile(pathDot, output + '\n', function (err) {});
+}
