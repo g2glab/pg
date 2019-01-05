@@ -6,6 +6,29 @@ var assert = chai.assert;
 var fs = require('fs');
 
 describe('pg2pgx', function() {
+  describe('c360', function() {
+    childProcess.execFileSync('pg2pgx', ['./examples/c360/c360.pg', './output/c360']);
+    it('generates 3 files: .pgx.nodes .pgx.edges .pgx.json', function() {
+      assert.pathExists('./output/c360.pgx.nodes');
+      assert.pathExists('./output/c360.pgx.edges');
+      assert.pathExists('./output/c360.pgx.json');
+    });
+    it('generates expected file: .pgx.nodes', function() {
+      var result = fs.readFileSync("./output/c360.pgx.nodes");
+      var expect = fs.readFileSync("./examples/c360/c360.pgx.nodes");
+      assert.deepEqual(result, expect);
+    });
+    it('generates expected file: .pgx.edges', function() {
+      var result = fs.readFileSync("./output/c360.pgx.edges");
+      var expect = fs.readFileSync("./examples/c360/c360.pgx.edges");
+      assert.deepEqual(result, expect);
+    });
+    it('generates expected file: .pgx.json', function() {
+      var result = fs.readFileSync("./output/c360.pgx.json");
+      var expect = fs.readFileSync("./examples/c360/c360.pgx.json");
+      assert.deepEqual(result, expect);
+    });
+  });
   describe('datatype', function() {
     childProcess.execFileSync('pg2pgx', ['./examples/datatype/datatype.pg', './output/datatype']);
     it('generates 3 files: .pgx.nodes .pgx.edges .pgx.json', function() {
@@ -14,8 +37,6 @@ describe('pg2pgx', function() {
       assert.pathExists('./output/datatype.pgx.json');
     });
     it('generates expected file: .pgx.nodes', function() {
-      //childProcess.execSync('sort ./output/datatype.pgx.nodes > ./output/datatype.pgx.nodes.sorted');
-      //childProcess.execSync('sort ./examples/datatype/datatype.pgx.nodes > ./examples/datatype/datatype.pgx.nodes.sorted');
       var result = fs.readFileSync("./output/datatype.pgx.nodes");
       var expect = fs.readFileSync("./examples/datatype/datatype.pgx.nodes");
       assert.deepEqual(result, expect);
@@ -35,31 +56,3 @@ describe('pg2pgx', function() {
   });
 });
 
-describe('pg2neo', function() {
-  describe('datatype', function() {
-    childProcess.execFileSync('pg2neo', ['./examples/datatype/datatype.pg', './output/datatype']);
-    it('generates 2 files: .neo.nodes .neo.edges', function() {
-      assert.pathExists('./output/datatype.neo.nodes');
-      assert.pathExists('./output/datatype.neo.edges');
-    });
-  });
-});
-
-describe('pg2aws', function() {
-  describe('datatype', function() {
-    childProcess.execFileSync('pg2aws', ['./examples/datatype/datatype.pg', './output/datatype']);
-    it('generates 2 files: .aws.nodes .aws.edges', function() {
-      assert.pathExists('./output/datatype.aws.nodes');
-      assert.pathExists('./output/datatype.aws.edges');
-    });
-  });
-});
-
-describe('pg2dot', function() {
-  describe('datatype', function() {
-    childProcess.execFileSync('pg2dot', ['./examples/datatype/datatype.pg', './output/datatype']);
-    it('generates 1 file: .dot', function() {
-      assert.pathExists('./output/datatype.dot');
-    });
-  });
-});
