@@ -42,8 +42,6 @@ describe('pg2pgx', function() {
       assert.deepEqual(result, expect);
     });
     it('generates expected file: .pgx.edges', function() {
-      childProcess.execSync('sort ./output/datatype.pgx.edges > ./output/datatype.pgx.edges.sorted');
-      childProcess.execSync('sort ./examples/datatype/datatype.pgx.edges > ./examples/datatype/datatype.pgx.edges.sorted');
       var result = fs.readFileSync("./output/datatype.pgx.edges");
       var expect = fs.readFileSync("./examples/datatype/datatype.pgx.edges");
       assert.deepEqual(result, expect);

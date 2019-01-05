@@ -5,7 +5,7 @@ var readline = require('readline');
 var commander = require('commander');
 
 commander
-  .version('0.2.1')
+  .version('0.2.2')
   .arguments('<elist_file_path> <config_file_path> <output_file_prefix>')
   .action(function (elist_file_path, config_file_path, output_file_prefix) {
     pathElist = elist_file_path;
