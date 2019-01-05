@@ -26,9 +26,11 @@ exports.extractItems = function (line) {
     strId1 = regexNode.exec(line)[1];
     id1 = [strId1.rmdq(), strId1.type()];
     id2 = null;
+    line = line.replace(/^("[^"]+"|\S+)/, '');
   } else {
     id1 = [result[1].rmdq(), result[1].type()];
     id2 = [result[2].rmdq(), result[2].type()];
+    line = line.replace(/^("[^"]+"|\S+)\s+("[^"]+"|\S+)/, '');
   }
   var labels = globalGroupMatch(line, /\s:(\S+|"[^"]+")/g).map((m) => m[1].rmdq());
   var props = globalGroupMatch(line, /\s("[^"]+"|\S+):("[^"]*"|\S*)/g).map((m) => [m[1].rmdq(), m[2].rmdq(), m[2].type()]);
