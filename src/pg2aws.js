@@ -41,7 +41,7 @@ function listProps(callback) {
   var rl = readline.createInterface(rs, {});
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, labels, props] = pg.extractItems(line);
+      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
       if (id2 == null) { // Node
         for (var i = 0; i < props.length; i++) { // For each property, check if it is listed
           var [key, val, type] = props[i];
@@ -92,47 +92,40 @@ function writeNodesAndEdges(callback) {
   var edgeId = 0;
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, labels, props] = pg.extractItems(line);
+      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
       if (id2 == null) { // Node
-        var output = [];
-        output[0] = id1[0];
-        output[1] = labels.join(';');
-        var lineProps = {};
-        for (var i = 0; i < props.length; i++) { // For each property, check its index
-          lineProps[props[i][0]] = props[i][1];
-        }
-        Object.keys(nodeProps).forEach((key, i) => {
-          if (lineProps[key] === undefined) {
-            output[i + 2] = '';
-          } else {
-            output[i + 2] = lineProps[key];
-          }
-        });
-        fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {});
+        addNode(id1, labels, props);
       } else { // Edge
-        var output = [
-          edgeId.toString(),
-          id1[0], // source node
-          id2[0], // target node
-          labels[0]
-        ];
+        addEdge(edgeId, id1, id2, labels, props);
         edgeId += 1;
-        var lineProps = {};
-        for (var i = 0; i < props.length; i++) {
-          lineProps[props[i][0]] = props[i][1];
-        }
-        Object.keys(edgeProps).forEach((key, i) => {
-          if (lineProps[key] === undefined) {
-            output[i + 4] = '';
-          } else {
-            output[i + 4] = lineProps[key];
-          }
-        });
-        fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {});
       }
     }
   });
   rl.on('close', function() {
     callback();
   });
+}
+
+function addNode(id, labels, props) {
+  var output = [ id[0], labels.join(';') ];
+  var lineProps = {};
+  for (var i=0; i<props.length; i++) { // For each property, check its index
+    lineProps[props[i][0]] = props[i][1];
+  }
+  Object.keys(nodeProps).forEach((key, i) => {
+    output[i + 2] = (lineProps[key] === undefined) ? '' : lineProps[key];
+  });
+  fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {});
+}
+
+function addEdge(edgeId, id1, id2, labels, props) {
+  var output = [ edgeId.toString(), id1[0], id2[0], labels[0] ];
+  var lineProps = {};
+  for (var i = 0; i < props.length; i++) {
+    lineProps[props[i][0]] = props[i][1];
+  }
+  Object.keys(edgeProps).forEach((key, i) => {
+    output[i + 4] = (lineProps[key] === undefined) ? '' : lineProps[key];
+  });
+  fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {});
 }

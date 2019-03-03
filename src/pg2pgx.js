@@ -33,7 +33,7 @@ fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
-    var [id1, id2, labels, props] = pg.extractItems(line);
+    var [id1, id2, undirected, labels, props] = pg.extractItems(line);
     if (id2 == null) {
       addNodeLine(id1[0], props); // Node label is not supported now
     } else {
@@ -101,8 +101,8 @@ function addEdgeLine(id1, id2, label, props) {
       fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
       if (arrEdgeProp.indexOf(key) == -1) {
         var propType = { name: key, type: type };
-        arrEdgeProp.push(key); 
-        arrEdgePropType.push(propType); 
+        arrEdgeProp.push(key);
+        arrEdgePropType.push(propType);
       }
     }
   }

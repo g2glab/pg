@@ -22,11 +22,11 @@ fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
 
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, labels, props] = pg.extractItems(line);
+      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
       if (id2 == null) { // Node
         addNodeLine(id1, labels, props);
       } else { // Edge
-        addEdgeLine(id1, id2, labels, props);
+        addEdgeLine(id1, id2, undirected, labels, props);
       }
     }
   });
@@ -39,7 +39,6 @@ fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
 });
 
 function addNodeLine(id, labels, props) {
-  var output = '';
   var strLabel = 'label="' + labels.join(';') + '\\l';
   var strProps = '';
   var visLabel = id[0] + '\\l';
@@ -51,23 +50,22 @@ function addNodeLine(id, labels, props) {
     }
   }
   strLabel += visLabel + '"';
-  output += '"' + id[0] + '" [' + strLabel + strProps + ']';
+  var output = '"' + id[0] + '" [' + strLabel + strProps + ']';
   fs.appendFile(pathDot, output + '\n', function (err) {});
 }
 
-function addEdgeLine(id1, id2, labels, props) {
-  var output = '';
-  var strLabel = 'label="' + labels.join(';') + '\\l';
+function addEdgeLine(id1, id2, undirected, labels, props) {
   var strProps = '';
-  var vis_label = '';
+  var visLabel = '';
   for (var i = 0; i < props.length; i++) {
     if (props[i][0] == 'vis_label') {
-      vis_label += props[i][1] + '\\l';
+      visLabel += props[i][1] + '\\l';
     } else {
       strProps += ' ' + props[i][0] + '="' + props[i][1] + '"';
     }
   }
-  strLabel += vis_label + '"';
-  output += '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + ']';
+  var strLabel = 'label="' + labels.join(';') + '\\l' + visLabel + '"';
+  var strDir = (undirected) ? ' dir=none' : '';
+  var output = '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + strDir + ']';
   fs.appendFile(pathDot, output + '\n', function (err) {});
 }

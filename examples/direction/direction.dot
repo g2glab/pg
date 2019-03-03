@@ -1,0 +1,6 @@
+digraph "./output/direction" {
+"1" [label="person\l1\l" name="Bob"]
+"2" [label="person\l2\l" name="Alice"]
+"1" -> "2" [label="friend\l" since="2013" dir=none]
+"1" -> "2" [label="likes\l" since="2015"]
+}

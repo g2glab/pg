@@ -1,4 +1,4 @@
-var version = '0.2.2'
+var version = '0.3.0'
 var commander = require('commander');
 
 exports.commander = commander
@@ -22,20 +22,22 @@ exports.extractItems = function (line) {
   var regexNode = /^("[^"]+"|\S+)/;
   //var regexEdge = /^("[^"]+"|\S+)\s+("[^"]+"|[^:]+)(\s|$)/;  // version 0.2.2
   var regexEdge = /^("[^"]+"|\S+)\s+(->|--)\s+("[^"]+"|\S+)(\s|$)/;
-  var id1, id2;
+  var id1, id2, undirected;
   if (!(result = regexEdge.exec(line))) {
     strId1 = regexNode.exec(line)[1];
     id1 = [strId1.rmdq(), strId1.type()];
     id2 = null;
+    undirected = null;
     line = line.replace(/^("[^"]+"|\S+)/, '');
   } else {
     id1 = [result[1].rmdq(), result[1].type()];
     id2 = [result[3].rmdq(), result[3].type()];
+    undirected = (result[2] == '->') ? false : true ;
     line = line.replace(/^("[^"]+"|\S+)\s+("[^"]+"|\S+)/, '');
   }
   var labels = globalGroupMatch(line, /\s:(\S+|"[^"]+")/g).map((m) => m[1].rmdq());
   var props = globalGroupMatch(line, /\s("[^"]+"|\S+):("[^"]*"|\S*)/g).map((m) => [m[1].rmdq(), m[2].rmdq(), m[2].type()]);
-  return [id1, id2, labels, props];
+  return [id1, id2, undirected, labels, props];
 }
 
 exports.checkItems = function (items) {
