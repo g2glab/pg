@@ -20,20 +20,19 @@ exports.isLineRead = function (line) {
 
 exports.extractItems = function (line) {
   var regexNode = /^("[^"]+"|\S+)/;
-  //var regexEdge = /^("[^"]+"|\S+)\s+("[^"]+"|[^:]+)(\s|$)/;  // version 0.2.2
-  var regexEdge = /^("[^"]+"|\S+)\s+(->|--)\s+("[^"]+"|\S+)(\s|$)/;
+  var regexEdge = /^("[^"]+"|\S+)\s+(->|--)\s+("[^"]+"|\S+)/;
   var id1, id2, undirected;
   if (!(result = regexEdge.exec(line))) {
     strId1 = regexNode.exec(line)[1];
     id1 = [strId1.rmdq(), strId1.type()];
     id2 = null;
     undirected = null;
-    line = line.replace(/^("[^"]+"|\S+)/, '');
+    line = line.replace(regexNode, '');
   } else {
     id1 = [result[1].rmdq(), result[1].type()];
     id2 = [result[3].rmdq(), result[3].type()];
     undirected = (result[2] == '->') ? false : true ;
-    line = line.replace(/^("[^"]+"|\S+)\s+("[^"]+"|\S+)/, '');
+    line = line.replace(regexEdge, '');
   }
   var labels = globalGroupMatch(line, /\s:(\S+|"[^"]+")/g).map((m) => m[1].rmdq());
   var props = globalGroupMatch(line, /\s("[^"]+"|\S+):("[^"]*"|\S*)/g).map((m) => [m[1].rmdq(), m[2].rmdq(), m[2].type()]);
