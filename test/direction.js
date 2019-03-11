@@ -29,7 +29,7 @@ describe('direction', function() {
       assert.deepEqual(result, expect);
     });
   });
-  describe('direction', function() {
+  describe('neo', function() {
     childProcess.execFileSync('pg2neo', ['./examples/direction/direction.pg', './output/direction']);
     it('generates 2 files: .neo.nodes .neo.edges', function() {
       assert.pathExists('./output/direction.neo.nodes');
@@ -48,7 +48,7 @@ describe('direction', function() {
       assert.deepEqual(result, expect);
     });
   });
-  describe('direction', function() {
+  describe('aws', function() {
     childProcess.execFileSync('pg2aws', ['./examples/direction/direction.pg', './output/direction']);
     it('generates 2 files: .aws.nodes .aws.edges', function() {
       assert.pathExists('./output/direction.aws.nodes');
@@ -67,7 +67,7 @@ describe('direction', function() {
       assert.deepEqual(result, expect);
     });
   });
-  describe('direction', function() {
+  describe('dot', function() {
     childProcess.execFileSync('pg2dot', ['./examples/direction/direction.pg', './output/direction']);
     it('generates 1 file: .dot', function() {
       assert.pathExists('./output/direction.dot');
