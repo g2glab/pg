@@ -1,0 +1,4 @@
+id:ID,:LABEL,prop_int,prop_double,prop_string,prop_url
+node01,,1234,1234.0,abcd,
+node02,,1234,1234.0,abcd,
+node03,,,,,http://abc.abc/abc

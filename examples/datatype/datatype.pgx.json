@@ -20,6 +20,10 @@
     {
       "name": "prop_string",
       "type": "string"
+    },
+    {
+      "name": "prop_url",
+      "type": "string"
     }
   ],
   "edge_props": [
@@ -33,6 +37,10 @@
     },
     {
       "name": "prop_string",
+      "type": "string"
+    },
+    {
+      "name": "prop_url",
       "type": "string"
     }
   ],

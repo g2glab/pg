@@ -6,3 +6,4 @@
 2,node01,node02,boss_of,prop_int,2,,1234,
 2,node01,node02,boss_of,prop_string,1,1234,,
 2,node01,node02,boss_of,prop_string,1,abcd,,
+3,node01,node03,site,prop_url,1,http://abc.abc/abc,,

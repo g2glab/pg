@@ -1,0 +1,4 @@
+~id,~from,~to,~label,prop_int:Int,prop_double:Double,prop_string:String,prop_url:String
+0,node01,node02,friend_of,1234,1234.0,abcd,
+1,node01,node02,boss_of,1234,1234.0,abcd,
+2,node01,node03,site,,,,http://abc.abc/abc

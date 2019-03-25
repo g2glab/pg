@@ -42,6 +42,7 @@ function listProps(callback) {
         for (var i = 0; i < props.length; i++) { // For each property, check if it is listed
           var key = props[i][0];
           var type = props[i][2];
+          console.log(key + ' ' + props[i][1] + ' ' + type);
           if (nodeProps[key] === undefined) {
             nodeProps[key] = type;
           }
