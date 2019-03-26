@@ -2,7 +2,7 @@ var version = '0.3.0'
 var commander = require('commander');
 
 exports.commander = commander
-  .version(version)
+  .version(require("../package.json").version)
   .arguments('<pg_file_path> <output_file_prefix>')
   .action(function (pg_file_path, output_file_prefix) {
     pathPg = pg_file_path;

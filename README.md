@@ -1,3 +1,3 @@
-# PG Format and Converters
+# PG Converters
 
 Please see [Documentation](https://g2gml.readthedocs.io/en/latest/contents/pg-format.html).
