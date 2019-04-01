@@ -1,12 +1,18 @@
-var version = '0.3.0'
 var commander = require('commander');
+var path = require('path');
+var fs = require('fs');
 
 exports.commander = commander
   .version(require("../package.json").version)
-  .arguments('<pg_file_path> <output_file_prefix>')
-  .action(function (pg_file_path, output_file_prefix) {
+  .option('-o, --output_dir [dir]', 'directory path for results', './')
+  .arguments('<pg_file_path>')
+  .action(function (pg_file_path) {
     pathPg = pg_file_path;
-    prefix = output_file_prefix;
+    basenamePg = path.basename(pg_file_path, '.pg');
+    prefix = path.join(commander.output_dir, basenamePg);
+    if (!fs.existsSync(commander.output_dir)) {
+      fs.mkdirSync(commander.output_dir, {recursive: true});
+    }
   })
   .parse(process.argv);
 

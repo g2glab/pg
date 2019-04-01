@@ -1,4 +1,4 @@
-digraph "./output/datatype" {
+digraph "output/datatype" {
 "node01" [label="\lnode01\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
 "node02" [label="\lnode02\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
 "node01" -> "node02" [label="friend_of\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]

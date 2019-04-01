@@ -7,7 +7,7 @@ var fs = require('fs');
 
 describe('id', function() {
   describe('pgx', function() {
-    childProcess.execFileSync('pg2pgx', ['./examples/id/id.pg', './output/id']);
+    childProcess.execFileSync('pg2pgx', ['./examples/id/id.pg', '-o', './output']);
     it('generates 3 files: .pgx.nodes .pgx.edges .pgx.json', function() {
       assert.pathExists('./output/id.pgx.nodes');
       assert.pathExists('./output/id.pgx.edges');
@@ -30,7 +30,7 @@ describe('id', function() {
     });
   });
   describe('neo', function() {
-    childProcess.execFileSync('pg2neo', ['./examples/id/id.pg', './output/id']);
+    childProcess.execFileSync('pg2neo', ['./examples/id/id.pg', '-o', './output']);
     it('generates 2 files: .neo.nodes .neo.edges', function() {
       assert.pathExists('./output/id.neo.nodes');
       assert.pathExists('./output/id.neo.edges');
@@ -49,7 +49,7 @@ describe('id', function() {
     });
   });
   describe('aws', function() {
-    childProcess.execFileSync('pg2aws', ['./examples/id/id.pg', './output/id']);
+    childProcess.execFileSync('pg2aws', ['./examples/id/id.pg', '-o', './output']);
     it('generates 2 files: .aws.nodes .aws.edges', function() {
       assert.pathExists('./output/id.aws.nodes');
       assert.pathExists('./output/id.aws.edges');
@@ -68,7 +68,7 @@ describe('id', function() {
     });
   });
   describe('dot', function() {
-    childProcess.execFileSync('pg2dot', ['./examples/id/id.pg', './output/id']);
+    childProcess.execFileSync('pg2dot', ['./examples/id/id.pg', '-o', './output']);
     it('generates 1 file: .dot', function() {
       assert.pathExists('./output/id.dot');
     });

@@ -1,4 +1,4 @@
-digraph "./output/id" {
+digraph "output/id" {
 "10001" [label="person\l10001\l" name="A"]
 "abcde" [label="person\labcde\l" name="B"]
 "abc" [label="person\labc\l" name="C"]

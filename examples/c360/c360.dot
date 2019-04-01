@@ -1,4 +1,4 @@
-digraph "./output/c360" {
+digraph "output/c360" {
 "c02" [label="customer\lc02\l" name="Mary" gender="F"]
 "a01" [label="account\la01\l" account_no="xxx-yyy-201" open="2015-10-04" owner="John"]
 "a03" [label="account\la03\l" account_no="xxx-yyy-203" open="2016-02-04" owner="Jill"]
