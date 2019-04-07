@@ -29,19 +29,23 @@ exports.extractItems = function (line) {
   var regexEdge = /^("[^"]+"|[^"\s]+)\s+(->|--)\s+("[^"]+"|[^"\s]+)/;
   var id1, id2, undirected;
   if (!(result = regexEdge.exec(line))) {
-    strId1 = regexNode.exec(line)[1];
-    id1 = [strId1.rmdq(), strId1.type()];
-    id2 = null;
-    undirected = null;
-    line = line.replace(regexNode, '');
+    if (!(result = regexNode.exec(line))) {
+      console.log('ERROR - this line is neither node nor edge: ' + line);
+    } else {
+      id1 = [result[1].rmdq(), result[1].type()];
+      id2 = null;
+      undirected = null;
+    }
   } else {
     id1 = [result[1].rmdq(), result[1].type()];
     id2 = [result[3].rmdq(), result[3].type()];
     undirected = (result[2] == '->') ? false : true ;
-    line = line.replace(regexEdge, '');
   }
   var labels = globalGroupMatch(line, /\s:("[^"]+"|[^"\s]+)/g).map((m) => m[1].rmdq());
-  var props = globalGroupMatch(line, /\s("[^"]+"|[^"\s]+):("[^"]*"|[^"\s]*)/g).map((m) => [m[1].rmdq(), m[2].rmdq(), m[2].type()]);
+  var props = {};
+  globalGroupMatch(line, /\s("[^"]+"|[^"\s]+):("[^"]*"|[^"\s]*)/g).forEach(function(m) {
+    props[m[1].rmdq()] = m[2];
+  });
   return [id1, id2, undirected, labels, props];
 }
 

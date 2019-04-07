@@ -42,11 +42,11 @@ function addNodeLine(id, labels, props) {
   var strLabel = 'label="' + labels.join(';') + '\\l';
   var strProps = '';
   var visLabel = id[0] + '\\l';
-  for (var i = 0; i < props.length; i++) {
-    if (props[i][0] == 'vis_label') {
-      visLabel = props[i][1] + '\\l';
+  for (key in props) {
+    if (key == 'vis_label') {
+      visLabel = props[key].rmdq() + '\\l';
     } else {
-      strProps += ' ' + props[i][0] + '="' + props[i][1] + '"';
+      strProps += ' ' + key + '="' + props[key].rmdq() + '"';
     }
   }
   strLabel += visLabel + '"';
@@ -57,11 +57,11 @@ function addNodeLine(id, labels, props) {
 function addEdgeLine(id1, id2, undirected, labels, props) {
   var strProps = '';
   var visLabel = '';
-  for (var i = 0; i < props.length; i++) {
-    if (props[i][0] == 'vis_label') {
-      visLabel += props[i][1] + '\\l';
+  for (key in props) {
+    if (key == 'vis_label') {
+      visLabel += props[key].rmdq() + '\\l';
     } else {
-      strProps += ' ' + props[i][0] + '="' + props[i][1] + '"';
+      strProps += ' ' + key + '="' + props[key].rmdq() + '"';
     }
   }
   var strLabel = 'label="' + labels.join(';') + '\\l' + visLabel + '"';

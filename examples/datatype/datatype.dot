@@ -1,8 +1,8 @@
 digraph "output/datatype" {
-"node01" [label="\lnode01\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
-"node02" [label="\lnode02\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
-"node01" -> "node02" [label="friend_of\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
-"node01" -> "node02" [label="boss_of\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string="abcd"]
+"node01" [label="\lnode01\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string_2="abcd"]
+"node02" [label="\lnode02\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string_2="abcd"]
+"node01" -> "node02" [label="friend_of\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string_2="abcd"]
+"node01" -> "node02" [label="boss_of\l" prop_int="1234" prop_double="1234.0" prop_string="1234" prop_string_2="abcd"]
 "node03" [label="\lnode03\l" prop_url="http://abc.abc/abc"]
 "node01" -> "node03" [label="site\l" prop_url="http://abc.abc/abc"]
 }

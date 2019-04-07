@@ -21,6 +21,7 @@
     "pg2pgx": "src/pg2pgx.js",
     "pg2neo": "src/pg2neo.js",
     "pg2dot": "src/pg2dot.js",
-    "pg2aws": "src/pg2aws.js"
+    "pg2aws": "src/pg2aws.js",
+    "pg2json": "src/pg2json.js"
   }
 }

@@ -1,4 +1,4 @@
-~id,~label,prop_int:Int,prop_double:Double,prop_string:String,prop_url:String
-node01,,1234,1234.0,abcd,
-node02,,1234,1234.0,abcd,
-node03,,,,,http://abc.abc/abc
+~id,~label,prop_int:Int,prop_double:Double,prop_string:String,prop_string_2:String,prop_url:String
+node01,,1234,1234.0,1234,abcd,
+node02,,1234,1234.0,1234,abcd,
+node03,,,,,,http://abc.abc/abc
