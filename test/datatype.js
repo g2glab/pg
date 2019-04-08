@@ -6,6 +6,30 @@ var assert = chai.assert;
 var fs = require('fs');
 
 describe('datatype', function() {
+  describe('json', function() {
+    childProcess.execFileSync('pg2json', ['./examples/datatype/datatype.pg', '-o', './output']);
+    it('generates 1 file: .json', function() {
+      assert.pathExists('./output/datatype.json');
+    });
+    it('generates expected file: .json', function() {
+      var result = JSON.parse(fs.readFileSync('./output/datatype.json'));
+      var expect = JSON.parse(fs.readFileSync('./examples/datatype/datatype.json'));
+      assert.deepEqual(result, expect);
+    });
+  });
+  describe('dot', function() {
+    childProcess.execFileSync('pg2dot', ['./examples/datatype/datatype.pg', '-o', './output']);
+    it('generates 1 file: .dot', function() {
+      assert.pathExists('./output/datatype.dot');
+    });
+    it('generates expected file: .dot', function() {
+      childProcess.execSync('sort ./output/datatype.dot > /tmp/result');
+      childProcess.execSync('sort ./examples/datatype/datatype.dot > /tmp/expect');
+      var result = fs.readFileSync("/tmp/result");
+      var expect = fs.readFileSync("/tmp/expect");
+      assert.deepEqual(result, expect);
+    });
+  });
   describe('pgx', function() {
     childProcess.execFileSync('pg2pgx', ['./examples/datatype/datatype.pg', '-o', './output']);
     it('generates 3 files: .pgx.nodes .pgx.edges .pgx.json', function() {
@@ -62,19 +86,6 @@ describe('datatype', function() {
     it('generates expected file: .aws.edges', function() {
       childProcess.execSync('sort ./output/datatype.aws.edges > /tmp/result');
       childProcess.execSync('sort ./examples/datatype/datatype.aws.edges > /tmp/expect');
-      var result = fs.readFileSync("/tmp/result");
-      var expect = fs.readFileSync("/tmp/expect");
-      assert.deepEqual(result, expect);
-    });
-  });
-  describe('dot', function() {
-    childProcess.execFileSync('pg2dot', ['./examples/datatype/datatype.pg', '-o', './output']);
-    it('generates 1 file: .dot', function() {
-      assert.pathExists('./output/datatype.dot');
-    });
-    it('generates expected file: .dot', function() {
-      childProcess.execSync('sort ./output/datatype.dot > /tmp/result');
-      childProcess.execSync('sort ./examples/datatype/datatype.dot > /tmp/expect');
       var result = fs.readFileSync("/tmp/result");
       var expect = fs.readFileSync("/tmp/expect");
       assert.deepEqual(result, expect);

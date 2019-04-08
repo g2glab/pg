@@ -1,0 +1,69 @@
+{
+  "nodes": [
+    {
+      "id": "node01",
+      "labels": [],
+      "properties": {
+        "prop_int": "1234",
+        "prop_double": "1234.0",
+        "prop_string": "\"1234\"",
+        "prop_string_2": "abcd"
+      }
+    },
+    {
+      "id": "node02",
+      "labels": [],
+      "properties": {
+        "prop_int": "1234",
+        "prop_double": "1234.0",
+        "prop_string": "\"1234\"",
+        "prop_string_2": "abcd"
+      }
+    },
+    {
+      "id": "node03",
+      "labels": [],
+      "properties": {
+        "prop_url": "\"http://abc.abc/abc\""
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "node01",
+      "to": "node02",
+      "labels": [
+        "friend_of"
+      ],
+      "properties": {
+        "prop_int": "1234",
+        "prop_double": "1234.0",
+        "prop_string": "\"1234\"",
+        "prop_string_2": "abcd"
+      }
+    },
+    {
+      "from": "node01",
+      "to": "node02",
+      "labels": [
+        "boss_of"
+      ],
+      "properties": {
+        "prop_int": "1234",
+        "prop_double": "1234.0",
+        "prop_string": "\"1234\"",
+        "prop_string_2": "abcd"
+      }
+    },
+    {
+      "from": "node01",
+      "to": "node03",
+      "labels": [
+        "site"
+      ],
+      "properties": {
+        "prop_url": "\"http://abc.abc/abc\""
+      }
+    }
+  ]
+}

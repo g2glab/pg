@@ -6,6 +6,30 @@ var assert = chai.assert;
 var fs = require('fs');
 
 describe('direction', function() {
+  describe('json', function() {
+    childProcess.execFileSync('pg2json', ['./examples/direction/direction.pg', '-o', './output']);
+    it('generates 1 file: .json', function() {
+      assert.pathExists('./output/direction.json');
+    });
+    it('generates expected file: .json', function() {
+      var result = JSON.parse(fs.readFileSync('./output/direction.json'));
+      var expect = JSON.parse(fs.readFileSync('./examples/direction/direction.json'));
+      assert.deepEqual(result, expect);
+    });
+  });
+  describe('dot', function() {
+    childProcess.execFileSync('pg2dot', ['./examples/direction/direction.pg', '-o', './output']);
+    it('generates 1 file: .dot', function() {
+      assert.pathExists('./output/direction.dot');
+    });
+    it('generates expected file: .dot', function() {
+      childProcess.execSync('sort ./output/direction.dot > /tmp/result');
+      childProcess.execSync('sort ./examples/direction/direction.dot > /tmp/expect');
+      var result = fs.readFileSync("/tmp/result");
+      var expect = fs.readFileSync("/tmp/expect");
+      assert.deepEqual(result, expect);
+    });
+  });
   describe('pgx', function() {
     childProcess.execFileSync('pg2pgx', ['./examples/direction/direction.pg', '-o', './output']);
     it('generates 3 files: .pgx.nodes .pgx.edges .pgx.json', function() {
@@ -62,19 +86,6 @@ describe('direction', function() {
     it('generates expected file: .aws.edges', function() {
       childProcess.execSync('sort ./output/direction.aws.edges > /tmp/result');
       childProcess.execSync('sort ./examples/direction/direction.aws.edges > /tmp/expect');
-      var result = fs.readFileSync("/tmp/result");
-      var expect = fs.readFileSync("/tmp/expect");
-      assert.deepEqual(result, expect);
-    });
-  });
-  describe('dot', function() {
-    childProcess.execFileSync('pg2dot', ['./examples/direction/direction.pg', '-o', './output']);
-    it('generates 1 file: .dot', function() {
-      assert.pathExists('./output/direction.dot');
-    });
-    it('generates expected file: .dot', function() {
-      childProcess.execSync('sort ./output/direction.dot > /tmp/result');
-      childProcess.execSync('sort ./examples/direction/direction.dot > /tmp/expect');
       var result = fs.readFileSync("/tmp/result");
       var expect = fs.readFileSync("/tmp/expect");
       assert.deepEqual(result, expect);
