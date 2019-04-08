@@ -19,7 +19,7 @@ var pathEdges = prefix + '.neo.edges';
 fs.writeFile(pathNodes, '', function (err) {});
 fs.writeFile(pathEdges, '', function (err) {});
 
-var sep = ',';
+var sep = '\t';
 
 listProps(function() {
   writeHeaderNodes(function() {
