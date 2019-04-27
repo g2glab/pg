@@ -43,15 +43,15 @@ function listProps(callback) {
     if (pg.isLineRead(line)) {
       var [id1, id2, undirected, labels, props] = pg.extractItems(line);
       if (id2 == null) { // Node
-        for (key in props) {
+        for (let [key, val] of props) {
           if (nodeProps[key] === undefined) {
-            nodeProps[key] = typeMap[props[key].type()];
+            nodeProps[key] = typeMap[val.type()];
           }
         }
       } else { // Edge
-        for (key in props) {
+        for (let [key, val] of props) {
           if (edgeProps[key] === undefined) {
-            edgeProps[key] = typeMap[props[key].type()];
+            edgeProps[key] = typeMap[val.type()];
           }
         }
       }
@@ -107,8 +107,8 @@ function writeNodesAndEdges(callback) {
 function addNode(id, labels, props) {
   var output = [ id[0], labels.join(';') ];
   var lineProps = {};
-  for (key in props) {
-    lineProps[key] = props[key].rmdq();
+  for (let [key, val] of props) {
+    lineProps[key] = val.rmdq();
   }
   Object.keys(nodeProps).forEach((key, i) => {
     output[i + 2] = (lineProps[key] === undefined) ? '' : lineProps[key];
@@ -119,8 +119,8 @@ function addNode(id, labels, props) {
 function addEdge(edgeId, id1, id2, labels, props) {
   var output = [ edgeId.toString(), id1[0], id2[0], labels[0] ];
   var lineProps = {};
-  for (key in props) {
-    lineProps[key] = props[key].rmdq();
+  for (let [key, val] of props) {
+    lineProps[key] = val.rmdq();
   }
   Object.keys(edgeProps).forEach((key, i) => {
     output[i + 4] = (lineProps[key] === undefined) ? '' : lineProps[key];

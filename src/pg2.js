@@ -42,11 +42,11 @@ exports.extractItems = function (line) {
     undirected = (result[2] == '->') ? false : true ;
   }
   var labels = globalGroupMatch(line, /\s:("[^"]+"|[^"\s]+)/g).map((m) => m[1].rmdq());
-  var props = {};
+  let properties = new Map();
   globalGroupMatch(line, /\s("[^"]+"|[^"\s]+):("[^"]*"|[^"\s]*)/g).forEach(function(m) {
-    props[m[1].rmdq()] = m[2];
+    properties.set(m[1].rmdq(), m[2]);
   });
-  return [id1, id2, undirected, labels, props];
+  return [id1, id2, undirected, labels, properties];
 }
 
 exports.checkItems = function (items) {

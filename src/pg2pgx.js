@@ -54,18 +54,17 @@ rl.on('close', function() {
 
 function addNodeLine(id, props) {
   cntNodes++;
-  if (props.length == 0) { // When this node has no property
+  if (props.size === 0) { // When this node has no property
     var output = [];
     output[0] = id;
     output[1] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
     fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
-    for (key in props) {
+    for (let [key, val] of props) {
       var output = [];
       output[0] = id;
       output[1] = key;
-      var val = props[key];
       var type = val.type();
       output = output.concat(format(val.rmdq(), type));
       fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
@@ -80,7 +79,7 @@ function addNodeLine(id, props) {
 
 function addEdgeLine(id1, id2, label, props) {
   cntEdges++;
-  if (props.length == 0) { // When this edge has no property
+  if (props.size === 0) { // When this edge has no property
     var output = [];
     output[0] = cntEdges; // edge id
     output[1] = id1; // source node
@@ -90,14 +89,13 @@ function addEdgeLine(id1, id2, label, props) {
     output = output.concat(format('', 'none'));
     fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
   } else {
-    for (key in props) {
+    for (let [key, val] of props) {
       var output = [];
       output[0] = cntEdges; // edge id
       output[1] = id1; // source node
       output[2] = id2; // target node
       output[3] = label;
       output[4] = key;
-      var val = props[key];
       var type = val.type();
       output = output.concat(format(val.rmdq(), type));
       fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});

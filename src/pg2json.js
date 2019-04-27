@@ -34,10 +34,11 @@ rl.on('close', function() {
 });
 
 function addNodeLine(id, labels, props) {
+if (props) {console.log(props.valueOf())};
   var node = {};
   node['id'] = id;
   node['labels'] = labels;
-  node['properties'] = props;
+  node['properties'] = mapToObject(props);
   graph.nodes.push(node);
 }
 
@@ -46,9 +47,17 @@ function addEdgeLine(id1, id2, undirected, labels, props) {
   edge['from'] = id1;
   edge['to'] = id2;
   edge['labels'] = labels;
-  edge['properties'] = props;
+  edge['properties'] = mapToObject(props);
   if (undirected) {
     edge['undirected'] = undirected;
   }
   graph.edges.push(edge);
+}
+
+function mapToObject(map) {
+  let result = {};
+  for ([key, value] of map) {
+    result[key] = value;
+  }
+  return result;
 }
