@@ -22,11 +22,11 @@ fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
 
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
+      var [id1, id2, undirected, labels, properties] = pg.extractItems(line);
       if (id2 == null) { // Node
-        addNodeLine(id1, labels, props);
+        addNodeLine(id1, labels, properties);
       } else { // Edge
-        addEdgeLine(id1, id2, undirected, labels, props);
+        addEdgeLine(id1, id2, undirected, labels, properties);
       }
     }
   });
@@ -38,34 +38,36 @@ fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
   });
 });
 
-function addNodeLine(id, labels, props) {
-  var strLabel = 'label="' + labels.join(';') + '\\l';
-  var strProps = '';
-  var visLabel = id[0] + '\\l';
-  for (let [key, val] of props) {
+function addNodeLine(id, labels, properties) {
+  let strLabel = 'label="' + labels.join(';') + '\\l';
+  let strProps = '';
+  let visLabel = id[0] + '\\l';
+  for (let [key, values] of properties) {
+    let strValues = Array.from(values).map(value => value.rmdq()).join(';');
     if (key == 'vis_label') {
-      visLabel = val.rmdq() + '\\l';
+      visLabel += strValues + '\\l';
     } else {
-      strProps += ' ' + key + '="' + val.rmdq() + '"';
+      strProps += ' ' + key + '="' + strValues + '"';
     }
   }
   strLabel += visLabel + '"';
-  var output = '"' + id[0] + '" [' + strLabel + strProps + ']';
+  let output = '"' + id[0] + '" [' + strLabel + strProps + ']';
   fs.appendFile(pathDot, output + '\n', function (err) {});
 }
 
-function addEdgeLine(id1, id2, undirected, labels, props) {
-  var strProps = '';
-  var visLabel = '';
-  for (let [key, val] of props) {
+function addEdgeLine(id1, id2, undirected, labels, properties) {
+  let strProps = '';
+  let visLabel = '';
+  for (let [key, values] of properties) {
+    let strValues = Array.from(values).map(value => value.rmdq()).join(';');
     if (key == 'vis_label') {
-      visLabel += val.rmdq() + '\\l';
+      visLabel += strValues + '\\l';
     } else {
-      strProps += ' ' + key + '="' + val.rmdq() + '"';
+      strProps += ' ' + key + '="' + strValues + '"';
     }
   }
-  var strLabel = 'label="' + labels.join(';') + '\\l' + visLabel + '"';
-  var strDir = (undirected) ? ' dir=none' : '';
-  var output = '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + strDir + ']';
+  let strLabel = 'label="' + labels.join(';') + '\\l' + visLabel + '"';
+  let strDir = (undirected) ? ' dir=none' : '';
+  let output = '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + strDir + ']';
   fs.appendFile(pathDot, output + '\n', function (err) {});
 }

@@ -44,7 +44,6 @@ exports.extractItems = function (line) {
   // LABELS
   let labels = new Set();
   let regexLabels = /\s:("[^"]+"|[^"\s]+)/g;
-  //let labels = globalGroupMatch(line, regexLabels).map((m) => m[1].rmdq());
   while (result = regexLabels.exec(line)) {
     labels.add(result[1].rmdq());
   }
@@ -52,9 +51,19 @@ exports.extractItems = function (line) {
   let properties = new Map();
   let regexProperties = /\s("[^"]+"|[^"\s]+):("[^"]*"|[^"\s]*)/g;
   while (result = regexProperties.exec(line)) {
-    properties.set(result[1].rmdq(), result[2]);
+    let key = result[1].rmdq();
+    let value = result[2];
+    if (!(properties.has(key))) {
+      let values = new Set();
+      values.add(value);
+      properties.set(key, values);
+    } else {
+      let values = properties.get(key).add(value);
+      properties.set(key, values);
+    } 
+    console.log(properties);
+    //properties.set(result[1].rmdq(), result[2]);
   }
-  console.log(Array.from(labels));
   return [id1, id2, undirected, Array.from(labels), properties];
 }
 

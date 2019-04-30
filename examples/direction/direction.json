@@ -6,7 +6,9 @@
         "person"
       ],
       "properties": {
-        "name": "Bob"
+        "name": [
+          "Bob"
+        ]
       }
     },
     {
@@ -15,7 +17,9 @@
         "person"
       ],
       "properties": {
-        "name": "Alice"
+        "name": [
+          "Alice"
+        ]
       }
     }
   ],
@@ -27,7 +31,9 @@
         "friend"
       ],
       "properties": {
-        "since": "2013"
+        "since": [
+          "2013"
+        ]
       },
       "undirected": true
     },
@@ -38,7 +44,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2015"
+        "since": [
+          "2015"
+        ]
       }
     }
   ]

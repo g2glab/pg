@@ -61,17 +61,19 @@ function addNodeLine(id, props) {
     output = output.concat(format('', 'none'));
     fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
-    for (let [key, val] of props) {
-      var output = [];
-      output[0] = id;
-      output[1] = key;
-      var type = val.type();
-      output = output.concat(format(val.rmdq(), type));
-      fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
-      if (arrNodeProp.indexOf(key) == -1) {
-        var propType = { name: key, type: type };
-        arrNodeProp.push(key); 
-        arrNodePropType.push(propType); 
+    for (let [key, values] of props) {
+      for (let value of values) {
+        var output = [];
+        output[0] = id;
+        output[1] = key;
+        var type = value.type();
+        output = output.concat(format(value.rmdq(), type));
+        fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+        if (arrNodeProp.indexOf(key) == -1) {
+          var propType = { name: key, type: type };
+          arrNodeProp.push(key); 
+          arrNodePropType.push(propType); 
+        }
       }
     }
   }
@@ -89,20 +91,22 @@ function addEdgeLine(id1, id2, label, props) {
     output = output.concat(format('', 'none'));
     fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
   } else {
-    for (let [key, val] of props) {
+    for (let [key, values] of props) {
+      for (let value of values) {
       var output = [];
       output[0] = cntEdges; // edge id
       output[1] = id1; // source node
       output[2] = id2; // target node
       output[3] = label;
       output[4] = key;
-      var type = val.type();
-      output = output.concat(format(val.rmdq(), type));
+      var type = value.type();
+      output = output.concat(format(value.rmdq(), type));
       fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
       if (arrEdgeProp.indexOf(key) == -1) {
         var propType = { name: key, type: type };
         arrEdgeProp.push(key);
         arrEdgePropType.push(propType);
+      }
       }
     }
   }

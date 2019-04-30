@@ -4,27 +4,45 @@
       "id": "node01",
       "labels": [],
       "properties": {
-        "prop_int": "1234",
-        "prop_double": "1234.0",
-        "prop_string": "\"1234\"",
-        "prop_string_2": "abcd"
+        "prop_int": [
+          "1234"
+        ],
+        "prop_double": [
+          "1234.0"
+        ],
+        "prop_string": [
+          "\"1234\""
+        ],
+        "prop_string_2": [
+          "abcd"
+        ]
       }
     },
     {
       "id": "node02",
       "labels": [],
       "properties": {
-        "prop_int": "1234",
-        "prop_double": "1234.0",
-        "prop_string": "\"1234\"",
-        "prop_string_2": "abcd"
+        "prop_int": [
+          "1234"
+        ],
+        "prop_double": [
+          "1234.0"
+        ],
+        "prop_string": [
+          "\"1234\""
+        ],
+        "prop_string_2": [
+          "abcd"
+        ]
       }
     },
     {
       "id": "node03",
       "labels": [],
       "properties": {
-        "prop_url": "\"http://abc.abc/abc\""
+        "prop_url": [
+          "\"http://abc.abc/abc\""
+        ]
       }
     }
   ],
@@ -36,10 +54,18 @@
         "friend_of"
       ],
       "properties": {
-        "prop_int": "1234",
-        "prop_double": "1234.0",
-        "prop_string": "\"1234\"",
-        "prop_string_2": "abcd"
+        "prop_int": [
+          "1234"
+        ],
+        "prop_double": [
+          "1234.0"
+        ],
+        "prop_string": [
+          "\"1234\""
+        ],
+        "prop_string_2": [
+          "abcd"
+        ]
       }
     },
     {
@@ -49,10 +75,18 @@
         "boss_of"
       ],
       "properties": {
-        "prop_int": "1234",
-        "prop_double": "1234.0",
-        "prop_string": "\"1234\"",
-        "prop_string_2": "abcd"
+        "prop_int": [
+          "1234"
+        ],
+        "prop_double": [
+          "1234.0"
+        ],
+        "prop_string": [
+          "\"1234\""
+        ],
+        "prop_string_2": [
+          "abcd"
+        ]
       }
     },
     {
@@ -62,7 +96,9 @@
         "site"
       ],
       "properties": {
-        "prop_url": "\"http://abc.abc/abc\""
+        "prop_url": [
+          "\"http://abc.abc/abc\""
+        ]
       }
     }
   ]

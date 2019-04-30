@@ -6,7 +6,9 @@
         "person"
       ],
       "properties": {
-        "name": "A"
+        "name": [
+          "A"
+        ]
       }
     },
     {
@@ -15,7 +17,9 @@
         "person"
       ],
       "properties": {
-        "name": "B"
+        "name": [
+          "B"
+        ]
       }
     },
     {
@@ -24,7 +28,9 @@
         "person"
       ],
       "properties": {
-        "name": "C"
+        "name": [
+          "C"
+        ]
       }
     },
     {
@@ -33,7 +39,9 @@
         "person"
       ],
       "properties": {
-        "name": "D"
+        "name": [
+          "D"
+        ]
       }
     },
     {
@@ -42,7 +50,9 @@
         "person"
       ],
       "properties": {
-        "name": "E"
+        "name": [
+          "E"
+        ]
       }
     },
     {
@@ -51,7 +61,9 @@
         "person"
       ],
       "properties": {
-        "name": "F"
+        "name": [
+          "F"
+        ]
       }
     },
     {
@@ -60,7 +72,9 @@
         "person"
       ],
       "properties": {
-        "name": "G"
+        "name": [
+          "G"
+        ]
       }
     }
   ],
@@ -72,7 +86,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -82,7 +98,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -92,7 +110,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -102,7 +122,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -112,7 +134,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -122,7 +146,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -132,7 +158,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -142,7 +170,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -152,7 +182,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -162,7 +194,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -172,7 +206,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     },
     {
@@ -182,7 +218,9 @@
         "likes"
       ],
       "properties": {
-        "since": "2010"
+        "since": [
+          "2010"
+        ]
       }
     }
   ]
