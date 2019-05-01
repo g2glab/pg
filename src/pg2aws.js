@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var readline = require('readline');
-var pg = require('./pg2.js');
+let fs = require('fs');
+let readline = require('readline');
+let pg = require('./pg2.js');
 
 pg.commander;
 if (pg.commander.args.length === 0) {
@@ -10,20 +10,20 @@ if (pg.commander.args.length === 0) {
   pg.commander.help();
 }
 
-var nodeProps = {};
-var edgeProps = {};
+let nodeProps = new Map();
+let edgeProps = new Map();
 
-var pathNodes = prefix + '.aws.nodes';
-var pathEdges = prefix + '.aws.edges';
-
-var typeMap = { string: 'String',
-                double: 'Double',
-                integer: 'Int'};
+const pathNodes = prefix + '.aws.nodes';
+const pathEdges = prefix + '.aws.edges';
+const sep = ',';
+const typeMap = {
+  string: 'String',
+  double: 'Double',
+  integer: 'Int'
+};
 
 fs.writeFile(pathNodes, '', function (err) {});
 fs.writeFile(pathEdges, '', function (err) {});
-
-var sep = ',';
 
 listProps(function() {
   writeHeaderNodes(function() {
@@ -37,24 +37,24 @@ listProps(function() {
 });
 
 function listProps(callback) {
-  var rs = fs.createReadStream(pathPg);
-  var rl = readline.createInterface(rs, {});
+  let rs = fs.createReadStream(pathPg);
+  let rl = readline.createInterface(rs, {});
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
-      if (id2 == null) { // Node
+      let [id1, id2, undirected, labels, props] = pg.extractItems(line);
+      if (id2 === null) { // Node
         for (let [key, values] of props) {
           for (let value of values) {
-            if (nodeProps[key] === undefined) {
-              nodeProps[key] = typeMap[value.type()];
+            if (! nodeProps.has(key)) {
+              nodeProps.set(key, typeMap[value.type()]);
             }
           }
         }
       } else { // Edge
         for (let [key, values] of props) {
           for (let value of values) {
-            if (edgeProps[key] === undefined) {
-              edgeProps[key] = typeMap[value.type()];
+            if (! edgeProps.has(key)) {
+              edgeProps.set(key, typeMap[value.type()]);
             }
           }
         }
@@ -67,9 +67,9 @@ function listProps(callback) {
 }
 
 function writeHeaderNodes(callback) {
-  var output = ['~id', '~label'];
-  Object.keys(nodeProps).forEach((key, i) => {
-    output[i + 2] = key + ':' + nodeProps[key];
+  let output = ['~id', '~label'];
+  Array.from(nodeProps.keys()).forEach((key, i) => {
+    output[i + 2] = key + ':' + nodeProps.get(key);
   });
   fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {
     callback();
@@ -77,9 +77,9 @@ function writeHeaderNodes(callback) {
 }
 
 function writeHeaderEdges(callback) {
-  var output = ['~id', '~from', '~to', '~label'];
-  Object.keys(edgeProps).forEach((key, i) => {
-    output[i + 4] = key + ':' + edgeProps[key];
+  let output = ['~id', '~from', '~to', '~label'];
+  Array.from(edgeProps.keys()).forEach((key, i) => {
+    output[i + 4] = key + ':' + edgeProps.get(key);
   });
   fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {
     callback();
@@ -87,15 +87,13 @@ function writeHeaderEdges(callback) {
 }
 
 function writeNodesAndEdges(callback) {
-  var rs = fs.createReadStream(pathPg);
-  var rl = readline.createInterface(rs, {});
-  var nodeKeys = Object.keys(nodeProps);
-  var edgeKeys = Object.keys(edgeProps);
-  var edgeId = 0;
+  let rs = fs.createReadStream(pathPg);
+  let rl = readline.createInterface(rs, {});
+  let edgeId = 0;
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
-      var [id1, id2, undirected, labels, props] = pg.extractItems(line);
-      if (id2 == null) { // Node
+      let [id1, id2, undirected, labels, props] = pg.extractItems(line);
+      if (id2 === null) { // Node
         addNode(id1, labels, props);
       } else { // Edge
         addEdge(edgeId, id1, id2, labels, props);
@@ -109,25 +107,25 @@ function writeNodesAndEdges(callback) {
 }
 
 function addNode(id, labels, props) {
-  var output = [ id[0], labels.join(';') ];
-  var lineProps = {};
+  let output = [ id[0], labels.join(';') ];
+  let lineProps = new Map();
   for (let [key, values] of props) {
-    lineProps[key] = Array.from(values).map(value => value.rmdq()).join(';');
+    lineProps.set(key, Array.from(values).map(value => value.rmdq()).join(';'));
   }
-  Object.keys(nodeProps).forEach((key, i) => {
-    output[i + 2] = (lineProps[key] === undefined) ? '' : lineProps[key];
+  Array.from(nodeProps.keys()).forEach((key, i) => {
+    output[i + 2] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
   fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {});
 }
 
 function addEdge(edgeId, id1, id2, labels, props) {
   var output = [ edgeId.toString(), id1[0], id2[0], labels[0] ];
-  var lineProps = {};
+  var lineProps = new Map();
   for (let [key, values] of props) {
-    lineProps[key] = Array.from(values).map(value => value.rmdq()).join(';');
+    lineProps.set(key, Array.from(values).map(value => value.rmdq()).join(';'));
   }
-  Object.keys(edgeProps).forEach((key, i) => {
-    output[i + 4] = (lineProps[key] === undefined) ? '' : lineProps[key];
+  Array.from(edgeProps.keys()).forEach((key, i) => {
+    output[i + 4] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
   fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {});
 }

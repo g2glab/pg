@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var readline = require('readline');
-var pg = require('./pg2.js');
+let fs = require('fs');
+let readline = require('readline');
+let pg = require('./pg2.js');
 
 pg.commander;
 if (pg.commander.args.length === 0) {
@@ -10,22 +10,22 @@ if (pg.commander.args.length === 0) {
   pg.commander.help();
 }
 
-var cntNodes = 0;
-var cntEdges = 0;
+let cntNodes = 0;
+let cntEdges = 0;
 
-var arrNodeProp = [];
-var arrEdgeProp = [];
-var arrNodePropType = [];
-var arrEdgePropType = [];
+let arrNodeProp = [];
+let arrEdgeProp = [];
+let arrNodePropType = [];
+let arrEdgePropType = [];
 
-var fileNodes = prefix + '.pgx.nodes';
-var fileEdges = prefix + '.pgx.edges';
-var fileConfig = prefix + '.pgx.json';
+const fileNodes = prefix + '.pgx.nodes';
+const fileEdges = prefix + '.pgx.edges';
+const fileConfig = prefix + '.pgx.json';
 
-var sep = ',';
+const sep = ',';
 
-var rs = fs.createReadStream(pathPg);
-var rl = readline.createInterface(rs, {});
+let rs = fs.createReadStream(pathPg);
+let rl = readline.createInterface(rs, {});
 
 fs.writeFile(fileNodes, '', function (err) {});
 fs.writeFile(fileEdges, '', function (err) {});
@@ -33,7 +33,7 @@ fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
-    var [id1, id2, undirected, labels, props] = pg.extractItems(line);
+    let [id1, id2, undirected, labels, props] = pg.extractItems(line);
     if (id2 == null) {
       addNodeLine(id1[0], props); // Node label is not supported now
     } else {
@@ -55,7 +55,7 @@ rl.on('close', function() {
 function addNodeLine(id, props) {
   cntNodes++;
   if (props.size === 0) { // When this node has no property
-    var output = [];
+    let output = [];
     output[0] = id;
     output[1] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
@@ -63,14 +63,14 @@ function addNodeLine(id, props) {
   } else {
     for (let [key, values] of props) {
       for (let value of values) {
-        var output = [];
+        let output = [];
         output[0] = id;
         output[1] = key;
-        var type = value.type();
+        let type = value.type();
         output = output.concat(format(value.rmdq(), type));
         fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
         if (arrNodeProp.indexOf(key) == -1) {
-          var propType = { name: key, type: type };
+          let propType = { name: key, type: type };
           arrNodeProp.push(key); 
           arrNodePropType.push(propType); 
         }
@@ -82,7 +82,7 @@ function addNodeLine(id, props) {
 function addEdgeLine(id1, id2, label, props) {
   cntEdges++;
   if (props.size === 0) { // When this edge has no property
-    var output = [];
+    let output = [];
     output[0] = cntEdges; // edge id
     output[1] = id1; // source node
     output[2] = id2; // target node
@@ -93,17 +93,17 @@ function addEdgeLine(id1, id2, label, props) {
   } else {
     for (let [key, values] of props) {
       for (let value of values) {
-      var output = [];
+      let output = [];
       output[0] = cntEdges; // edge id
       output[1] = id1; // source node
       output[2] = id2; // target node
       output[3] = label;
       output[4] = key;
-      var type = value.type();
+      let type = value.type();
       output = output.concat(format(value.rmdq(), type));
       fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
       if (arrEdgeProp.indexOf(key) == -1) {
-        var propType = { name: key, type: type };
+        let propType = { name: key, type: type };
         arrEdgeProp.push(key);
         arrEdgePropType.push(propType);
       }
@@ -113,7 +113,7 @@ function addEdgeLine(id1, id2, label, props) {
 }
 
 function createLoadConfig() {
-  var config = {
+  let config = {
     vertex_uri_list: [ filename(fileNodes) ]
   , edge_uri_list: [ filename(fileEdges) ]
   , format: "flat_file"
@@ -135,38 +135,38 @@ function filename(path) {
 }
 
 function format(str, type) {
-  var output = [];
-  if (type == 'none') {
+  let output = [];
+  if (type === 'none') {
     output[0] = '';
     output[1] = '';
     output[2] = '';
     output[3] = '';
-  } else if (type == 'string') {
+  } else if (type === 'string') {
     output[0] = '1';
     output[1] = str;
     output[2] = '';
     output[3] = '';
-  } else if (type == 'integer') {
+  } else if (type === 'integer') {
     output[0] = '2';
     output[1] = '';
     output[2] = str;
     output[3] = '';
-  } else if (type == 'float') {
+  } else if (type === 'float') {
     output[0] = '3';
     output[1] = '';
     output[2] = str;
     output[3] = '';
-  } else if (type == 'double') {
+  } else if (type === 'double') {
     output[0] = '4';
     output[1] = '';
     output[2] = str;
     output[3] = '';
-  } else if (type == 'datetime') {
+  } else if (type === 'datetime') {
     output[0] = '5';
     output[1] = '';
     output[2] = '';
     output[3] = str;
-  } else if (type == 'datetime') {
+  } else if (type === 'datetime') {
     output[0] = '6';
     output[1] = str;
     output[2] = '';
@@ -176,12 +176,12 @@ function format(str, type) {
 };
 
 function sort(file, option, callback) {
-  var fileTmp = file + '.tmp';
-  var spawn = require('child_process').spawn;
-  var sort = spawn('sort', [option, '-o', fileTmp, file]);
+  let fileTmp = file + '.tmp';
+  let spawn = require('child_process').spawn;
+  let sort = spawn('sort', [option, '-o', fileTmp, file]);
   sort.on('exit', function() {
-    var spawn = require('child_process').spawn;
-    var mv = spawn('mv', [fileTmp, file]);
+    let spawn = require('child_process').spawn;
+    let mv = spawn('mv', [fileTmp, file]);
     mv.on('exit', function() {
       callback();
     });

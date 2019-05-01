@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var readline = require('readline');
-var pg = require('./pg2.js');
+let fs = require('fs');
+let readline = require('readline');
+let pg = require('./pg2.js');
 
 pg.commander;
 if (pg.commander.args.length === 0) {
@@ -10,20 +10,19 @@ if (pg.commander.args.length === 0) {
   pg.commander.help();
 }
 
-var pathDot = prefix + '.dot';
+const pathDot = prefix + '.dot';
+fs.writeFile(pathDot, '', function (err) {}); // Overwrite if file exists
 
-fs.writeFile(pathDot, '', function (err) {});
-
-var graphName = prefix;
+const graphName = prefix;
 fs.appendFile(pathDot, 'digraph "' + graphName + '" {\n', function (err) {
 
-  var rs = fs.createReadStream(pathPg);
-  var rl = readline.createInterface(rs, {});
+  let rs = fs.createReadStream(pathPg);
+  let rl = readline.createInterface(rs, {});
 
   rl.on('line', function(line) {
     if (pg.isLineRead(line)) {
       var [id1, id2, undirected, labels, properties] = pg.extractItems(line);
-      if (id2 == null) { // Node
+      if (id2 === null) { // Node
         addNodeLine(id1, labels, properties);
       } else { // Edge
         addEdgeLine(id1, id2, undirected, labels, properties);

@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var readline = require('readline');
-var pg = require('./pg2.js');
+let fs = require('fs');
+let readline = require('readline');
+let pg = require('./pg2.js');
 
 pg.commander;
 
-var fileJSON = prefix + '.json';
+const fileJSON = prefix + '.json';
 
-var rs = fs.createReadStream(pathPg);
-var rl = readline.createInterface(rs, {});
+let rs = fs.createReadStream(pathPg);
+let rl = readline.createInterface(rs, {});
 
 fs.writeFile(fileJSON, '', function (err) {});
 
-var graph = { nodes:[], edges:[] };
+let graph = { nodes:[], edges:[] };
 
 rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
-    var [id1, id2, undirected, labels, props] = pg.extractItems(line);
+    let [id1, id2, undirected, labels, props] = pg.extractItems(line);
     if (id2 == null) {
       addNodeLine(id1[0], labels, props);
     } else {
@@ -35,7 +35,7 @@ rl.on('close', function() {
 
 function addNodeLine(id, labels, props) {
 if (props) {console.log(props.valueOf())};
-  var node = {};
+  let node = {};
   node['id'] = id;
   node['labels'] = labels;
   node['properties'] = mapToObject(props);
@@ -43,7 +43,7 @@ if (props) {console.log(props.valueOf())};
 }
 
 function addEdgeLine(id1, id2, undirected, labels, props) {
-  var edge = {};
+  let edge = {};
   edge['from'] = id1;
   edge['to'] = id2;
   edge['labels'] = labels;
