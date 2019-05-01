@@ -10,7 +10,7 @@
         "prop_double": [
           "1234.0"
         ],
-        "prop_string": [
+        "prop_string_1": [
           "\"1234\""
         ],
         "prop_string_2": [
@@ -28,7 +28,7 @@
         "prop_double": [
           "1234.0"
         ],
-        "prop_string": [
+        "prop_string_1": [
           "\"1234\""
         ],
         "prop_string_2": [
@@ -42,6 +42,20 @@
       "properties": {
         "prop_url": [
           "\"http://abc.abc/abc\""
+        ]
+      }
+    },
+    {
+      "id": "node04",
+      "labels": [],
+      "properties": {
+        "prop_list_int": [
+          "10",
+          "20"
+        ],
+        "prop_list_string": [
+          "abcd",
+          "efgh"
         ]
       }
     }
@@ -60,7 +74,7 @@
         "prop_double": [
           "1234.0"
         ],
-        "prop_string": [
+        "prop_string_1": [
           "\"1234\""
         ],
         "prop_string_2": [
@@ -81,7 +95,7 @@
         "prop_double": [
           "1234.0"
         ],
-        "prop_string": [
+        "prop_string_1": [
           "\"1234\""
         ],
         "prop_string_2": [
@@ -98,6 +112,21 @@
       "properties": {
         "prop_url": [
           "\"http://abc.abc/abc\""
+        ]
+      }
+    },
+    {
+      "from": "node01",
+      "to": "node04",
+      "labels": [],
+      "properties": {
+        "prop_list_int": [
+          "10",
+          "20"
+        ],
+        "prop_list_string": [
+          "abcd",
+          "efgh"
         ]
       }
     }

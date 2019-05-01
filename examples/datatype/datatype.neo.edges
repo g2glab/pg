@@ -1,4 +1,5 @@
-:START_ID	:END_ID	:TYPE	prop_int	prop_double	prop_string	prop_string_2	prop_url
-node01	node02	friend_of	1234	1234.0	1234	abcd	
-node01	node02	boss_of	1234	1234.0	1234	abcd	
-node01	node03	site					http://abc.abc/abc
+:START_ID	:END_ID	:TYPE	prop_int	prop_double	prop_string_1	prop_string_2	prop_url	prop_list_int	prop_list_string
+node01	node02	friend_of	1234	1234.0	1234	abcd			
+node01	node02	boss_of	1234	1234.0	1234	abcd			
+node01	node03	site					http://abc.abc/abc		
+node01	node04							10;20	abcd;efgh

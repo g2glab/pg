@@ -61,8 +61,6 @@ exports.extractItems = function (line) {
       let values = properties.get(key).add(value);
       properties.set(key, values);
     } 
-    console.log(properties);
-    //properties.set(result[1].rmdq(), result[2]);
   }
   return [id1, id2, undirected, Array.from(labels), properties];
 }

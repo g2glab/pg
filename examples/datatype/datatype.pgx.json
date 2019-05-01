@@ -18,7 +18,7 @@
       "type": "double"
     },
     {
-      "name": "prop_string",
+      "name": "prop_string_1",
       "type": "string"
     },
     {
@@ -27,6 +27,14 @@
     },
     {
       "name": "prop_url",
+      "type": "string"
+    },
+    {
+      "name": "prop_list_int",
+      "type": "integer"
+    },
+    {
+      "name": "prop_list_string",
       "type": "string"
     }
   ],
@@ -40,7 +48,7 @@
       "type": "double"
     },
     {
-      "name": "prop_string",
+      "name": "prop_string_1",
       "type": "string"
     },
     {
@@ -49,6 +57,14 @@
     },
     {
       "name": "prop_url",
+      "type": "string"
+    },
+    {
+      "name": "prop_list_int",
+      "type": "integer"
+    },
+    {
+      "name": "prop_list_string",
       "type": "string"
     }
   ],
