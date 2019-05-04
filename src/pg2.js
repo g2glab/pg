@@ -80,7 +80,7 @@ String.prototype.type = function () {
     if (this.match(/\./)) {
       return 'double';
     } else {
-      return 'integer';
+      return 'int';
     }
   }
 }

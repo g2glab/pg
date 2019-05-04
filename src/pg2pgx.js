@@ -126,7 +126,7 @@ function createLoadConfig() {
       load_edge_label:true
     }
   };
-  fs.appendFile(fileConfig, JSON.stringify(config, null, 2), function (err) {});
+  fs.appendFile(fileConfig, JSON.stringify(config, null, 2) + '\n', function (err) {});
   console.log('"' + fileConfig + '" has been created.');
 }
 
@@ -146,7 +146,7 @@ function format(str, type) {
     output[1] = str;
     output[2] = '';
     output[3] = '';
-  } else if (type === 'integer') {
+  } else if (type === 'int') {
     output[0] = '2';
     output[1] = '';
     output[2] = str;

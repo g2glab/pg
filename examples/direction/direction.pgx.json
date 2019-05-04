@@ -17,7 +17,7 @@
   "edge_props": [
     {
       "name": "since",
-      "type": "integer"
+      "type": "int"
     }
   ],
   "separator": ",",

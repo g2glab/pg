@@ -147,7 +147,7 @@ function format(str, type) {
     output[1] = str;
     output[2] = '';
     output[3] = '';
-  } else if (type == 'integer') {
+  } else if (type == 'int') {
     output[0] = '2';
     output[1] = '';
     output[2] = str;
