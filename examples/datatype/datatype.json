@@ -11,7 +11,7 @@
           "1234.0"
         ],
         "prop_string_1": [
-          "\"1234\""
+          "1234"
         ],
         "prop_string_2": [
           "abcd"
@@ -29,7 +29,7 @@
           "1234.0"
         ],
         "prop_string_1": [
-          "\"1234\""
+          "1234"
         ],
         "prop_string_2": [
           "abcd"
@@ -41,7 +41,7 @@
       "labels": [],
       "properties": {
         "prop_url": [
-          "\"http://abc.abc/abc\""
+          "http://abc.abc/abc"
         ]
       }
     },
@@ -75,7 +75,7 @@
           "1234.0"
         ],
         "prop_string_1": [
-          "\"1234\""
+          "1234"
         ],
         "prop_string_2": [
           "abcd"
@@ -96,7 +96,7 @@
           "1234.0"
         ],
         "prop_string_1": [
-          "\"1234\""
+          "1234"
         ],
         "prop_string_2": [
           "abcd"
@@ -111,7 +111,7 @@
       ],
       "properties": {
         "prop_url": [
-          "\"http://abc.abc/abc\""
+          "http://abc.abc/abc"
         ]
       }
     },
