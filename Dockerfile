@@ -12,7 +12,7 @@ RUN cd \
  && echo 'syntax on' > .vimrc
 
 RUN cd /opt \
- && git clone -b v0.3.4 https://github.com/g2gml/pg.git \
+ && git clone -b v0.3.4 https://github.com/g2glab/pg.git \
  && cd pg \
  && npm install \
  && npm link
