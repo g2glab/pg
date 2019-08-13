@@ -57,7 +57,7 @@ function addEdgeLine(id1, id2, undirected, labels, props) {
 function mapToObject(map) {
   let result = {};
   for ([key, values] of map) {
-    result[key] = Array.from(values);
+    result[key] = Array.from(values).map(value => value.rmdq());
   }
   return result;
 }

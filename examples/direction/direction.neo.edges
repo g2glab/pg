@@ -1,3 +1,3 @@
-:START_ID	:END_ID	:TYPE	since
+:START_ID	:END_ID	:TYPE	since:int
 1	2	friend	2013
 1	2	likes	2015

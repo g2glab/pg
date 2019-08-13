@@ -19,7 +19,7 @@ const sep = ',';
 const typeMap = {
   string: 'String',
   double: 'Double',
-  integer: 'Int'
+  int: 'Int'
 };
 
 fs.writeFile(pathNodes, '', function (err) {});

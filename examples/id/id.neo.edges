@@ -1,4 +1,4 @@
-:START_ID	:END_ID	:TYPE	since
+:START_ID	:END_ID	:TYPE	since:int
 10001	abcde	likes	2010
 10001	abc	likes	2010
 10001	a:b	likes	2010

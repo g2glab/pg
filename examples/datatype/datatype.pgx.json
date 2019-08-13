@@ -11,7 +11,7 @@
   "vertex_props": [
     {
       "name": "prop_int",
-      "type": "integer"
+      "type": "int"
     },
     {
       "name": "prop_double",
@@ -31,7 +31,7 @@
     },
     {
       "name": "prop_list_int",
-      "type": "integer"
+      "type": "int"
     },
     {
       "name": "prop_list_string",
@@ -41,7 +41,7 @@
   "edge_props": [
     {
       "name": "prop_int",
-      "type": "integer"
+      "type": "int"
     },
     {
       "name": "prop_double",
@@ -61,7 +61,7 @@
     },
     {
       "name": "prop_list_int",
-      "type": "integer"
+      "type": "int"
     },
     {
       "name": "prop_list_string",

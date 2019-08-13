@@ -38,21 +38,9 @@ function listProps(callback) {
     if (pg.isLineRead(line)) {
       let [id1, id2, undirected, types, props] = pg.extractItems(line);
       if (id2 === null) {
-        for (let [key, values] of props) {
-          for (let value of values) {
-            if (! nodeProps.has(key)) {
-              nodeProps.set(key, value.type());
-            }
-          }
-        }
+        addProps(nodeProps, props);
       } else {
-        for (let [key, values] of props) {
-          for (let value of values) {
-            if (! edgeProps.has(key)) {
-              edgeProps.set(key, value.type());
-            }
-          }
-        }
+        addProps(edgeProps, props);
       }
     }
   });
@@ -61,10 +49,34 @@ function listProps(callback) {
   });
 }
 
+function addProps(allProps, props) {
+  for (let [key, values] of props) {
+    if (values.size === 1) {
+      for (let value of values) {
+        if (! allProps.has(key)) {
+          allProps.set(key, value.type());
+        }
+      }
+    } else {
+      let type = null;
+      for (let value of values) {
+        if ((type === null) || (type === value.type())) {
+          type = value.type();
+        } else {
+          console.log('WARNING: Neo4j only allows homogeneous lists of datatypes (', type, ' and ', value.type());
+        }
+      }
+      if ((! allProps.has(key)) || (allProps.get(key) === type)) {
+        allProps.set(key, type + '[]');
+      }
+    }
+  }
+}
+
 function writeHeaderNodes(callback) {
   let output = ['id:ID', ':LABEL'];
   Array.from(nodeProps.keys()).forEach((key, i) => {
-    output[i + 2] = key;
+    output[i + 2] = key + ':' + nodeProps.get(key);
   });
   fs.appendFile(pathNodes, output.join(sep) + '\n', (err) => {});
   callback();
@@ -73,7 +85,7 @@ function writeHeaderNodes(callback) {
 function writeHeaderEdges(callback) {
   let output = [':START_ID', ':END_ID', ':TYPE'];
   Array.from(edgeProps.keys()).forEach((key, i) => {
-    output[i + 3] = key;
+    output[i + 3] = key + ':' + edgeProps.get(key);
   });
   fs.appendFile(pathEdges, output.join(sep) + '\n', (err) => {});
   callback();

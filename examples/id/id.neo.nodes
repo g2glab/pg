@@ -1,4 +1,4 @@
-id:ID	:LABEL	name
+id:ID	:LABEL	name:string
 10001	person	A
 abcde	person	B
 abc	person	C
