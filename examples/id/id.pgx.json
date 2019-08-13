@@ -10,6 +10,10 @@
   "edge_label": true,
   "vertex_props": [
     {
+      "name": "_label",
+      "type": "string"
+    },
+    {
       "name": "name",
       "type": "string"
     }

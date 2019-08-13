@@ -35,7 +35,7 @@ rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
     let [id1, id2, undirected, labels, props] = pg.extractItems(line);
     if (id2 == null) {
-      addNodeLine(id1[0], props); // Node label is not supported now
+      addNodeLine(id1[0], labels, props);
     } else {
       addEdgeLine(id1[0], id2[0], labels[0], props); // Only one label is supported now
     }
@@ -52,8 +52,25 @@ rl.on('close', function() {
   });
 });
 
-function addNodeLine(id, props) {
+function addNodeLine(id, labels, props) {
   cntNodes++;
+  if (labels.size !== 0) { // When this node has labels, they are stored as a normal property "_label"
+    for (let label of labels) {
+      let key = '_label';
+      let value = label;
+      let output = [];
+      output[0] = id;
+      output[1] = key;
+      let type = 'string';
+      output = output.concat(format(value.rmdq(), type));
+      fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+      if (arrNodeProp.indexOf(key) == -1) {
+        let propType = { name: key, type: type };
+        arrNodeProp.push(key); 
+        arrNodePropType.push(propType); 
+      }
+    }
+  }
   if (props.size === 0) { // When this node has no property
     let output = [];
     output[0] = id;
@@ -62,17 +79,21 @@ function addNodeLine(id, props) {
     fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
   } else {
     for (let [key, values] of props) {
-      for (let value of values) {
-        let output = [];
-        output[0] = id;
-        output[1] = key;
-        let type = value.type();
-        output = output.concat(format(value.rmdq(), type));
-        fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
-        if (arrNodeProp.indexOf(key) == -1) {
-          let propType = { name: key, type: type };
-          arrNodeProp.push(key); 
-          arrNodePropType.push(propType); 
+      if (key == '_label') {
+        console.log('WARNING: Node ID = ' + id + ' has property "_label". Skipped.');
+      } else {
+        for (let value of values) {
+          let output = [];
+          output[0] = id;
+          output[1] = key;
+          let type = value.type();
+          output = output.concat(format(value.rmdq(), type));
+          fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+          if (arrNodeProp.indexOf(key) == -1) {
+            let propType = { name: key, type: type };
+            arrNodeProp.push(key); 
+            arrNodePropType.push(propType); 
+          }
         }
       }
     }
