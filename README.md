@@ -1,3 +1,3 @@
 # PG Formats and Converters
 
-[Read the Docs](https://pg-format.readthedocs.io/en/latest/)
+Go to [Read the Docs](https://pg-format.readthedocs.io/).
