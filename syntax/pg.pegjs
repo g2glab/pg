@@ -17,12 +17,13 @@ Node = WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
   }
 }
 
-Edge = WS* f:Value WS+ Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
+Edge = WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
 {
   return {
     from: f,
     to: t,
     labels: l,
+    direction: d,
     properties: p
   }
 }
@@ -110,6 +111,3 @@ INLINE_COMMENT = WS+ '#' WS+ NON_NEWLINE*
 CHARACTER = [^:\u0020\u0009\u000D\u000A]
 
 Direction = '--' / '->'
-{
-  return
-}
