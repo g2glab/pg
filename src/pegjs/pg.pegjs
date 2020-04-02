@@ -1,8 +1,21 @@
+{
+  let nodeCount = 0;
+  let edgeCount = 0;
+  let nodePropHash = {};
+  let edgePropHash = {};
+}
+
 PG = lines:NodeOrEdge+
 {
   return {
     nodes: lines.map(l => l.node).filter(v => v),
-    edges: lines.map(l => l.edge).filter(v => v)
+    edges: lines.map(l => l.edge).filter(v => v),
+    // nodeProperties: Object.keys(nodePropHash),
+    // edgeProperties: Object.keys(edgePropHash)
+    nodeCount: nodeCount,
+    edgeCount: edgeCount,
+    nodeProperties: nodePropHash,
+    edgeProperties: edgePropHash
   }
 }
 
@@ -21,21 +34,55 @@ NodeOrEdge = n:Node
 
 Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE COMMENT_LINE*
 {
+  let propObj = {};
+  p.forEach(prop => {
+    if (propObj[prop.key]) {
+      propObj[prop.key].push(prop.value);
+    } else {
+      propObj[prop.key] = [prop.value];
+    }
+    // nodePropHash[prop.key] = true;
+    if (nodePropHash[prop.key]) {
+      nodePropHash[prop.key]++;
+    } else {
+      nodePropHash[prop.key] = 1;
+    }
+  });
+
+  nodeCount++;
+
   return {
     id: id,
     labels: l,
-    properties: p
+    properties: propObj
   }
 }
 
 Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE COMMENT_LINE*
 {
+  let propObj = {};
+  p.forEach(prop => {
+    if (propObj[prop.key]) {
+      propObj[prop.key].push(prop.value);
+    } else {
+      propObj[prop.key] = [prop.value];
+    }
+    // edgePropHash[prop.key] = true;
+    if (edgePropHash[prop.key]) {
+      edgePropHash[prop.key]++;
+    } else {
+      edgePropHash[prop.key] = 1;
+    }
+  });
+
+  edgeCount++;
+
   return {
     from: f,
     to: t,
     direction: d,
     labels: l,
-    properties: p
+    properties: propObj
   }
 }
 

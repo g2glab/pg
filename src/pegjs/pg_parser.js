@@ -144,7 +144,13 @@ function peg$parse(input, options) {
       peg$c0 = function(lines) {
         return {
           nodes: lines.map(l => l.node).filter(v => v),
-          edges: lines.map(l => l.edge).filter(v => v)
+          edges: lines.map(l => l.edge).filter(v => v),
+          // nodeProperties: Object.keys(nodePropHash),
+          // edgeProperties: Object.keys(edgePropHash)
+          nodeCount: nodeCount,
+          edgeCount: edgeCount,
+          nodeProperties: nodePropHash,
+          edgeProperties: edgePropHash
         }
       },
       peg$c1 = function(n) {
@@ -158,19 +164,53 @@ function peg$parse(input, options) {
         }
       },
       peg$c3 = function(id, l, p) {
+        let propObj = {};
+        p.forEach(prop => {
+          if (propObj[prop.key]) {
+            propObj[prop.key].push(prop.value);
+          } else {
+            propObj[prop.key] = [prop.value];
+          }
+          // nodePropHash[prop.key] = true;
+          if (nodePropHash[prop.key]) {
+            nodePropHash[prop.key]++;
+          } else {
+            nodePropHash[prop.key] = 1;
+          }
+        });
+
+        nodeCount++;
+
         return {
           id: id,
           labels: l,
-          properties: p
+          properties: propObj
         }
       },
       peg$c4 = function(f, d, t, l, p) {
+        let propObj = {};
+        p.forEach(prop => {
+          if (propObj[prop.key]) {
+            propObj[prop.key].push(prop.value);
+          } else {
+            propObj[prop.key] = [prop.value];
+          }
+          // edgePropHash[prop.key] = true;
+          if (edgePropHash[prop.key]) {
+            edgePropHash[prop.key]++;
+          } else {
+            edgePropHash[prop.key] = 1;
+          }
+        });
+
+        edgeCount++;
+
         return {
           from: f,
           to: t,
           direction: d,
           labels: l,
-          properties: p
+          properties: propObj
         }
       },
       peg$c5 = ":",
@@ -1588,6 +1628,13 @@ function peg$parse(input, options) {
 
     return s0;
   }
+
+
+    let nodeCount = 0;
+    let edgeCount = 0;
+    let nodePropHash = {};
+    let edgePropHash = {};
+
 
   peg$result = peg$startRuleFunction();
 
