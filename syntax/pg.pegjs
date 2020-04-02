@@ -1,14 +1,25 @@
 PG = lines:NodeOrEdge+
 {
-  return lines
+  return {
+    nodes: lines.map(l => l.node).filter(v => v),
+    edges: lines.map(l => l.edge).filter(v => v)
+  }
 }
 
-NodeOrEdge = COMMENT_LINE* line:( Node / Edge ) COMMENT_LINE*
+NodeOrEdge = n:Node
 {
-  return line;
+  return {
+    node: n
+  }
+}
+/ e:Edge
+{
+  return {
+    edge: e
+  }
 }
 
-Node = WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
+Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE COMMENT_LINE*
 {
   return {
     id: id,
@@ -17,13 +28,13 @@ Node = WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
   }
 }
 
-Edge = WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE
+Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE COMMENT_LINE*
 {
   return {
     from: f,
     to: t,
-    labels: l,
     direction: d,
+    labels: l,
     properties: p
   }
 }
