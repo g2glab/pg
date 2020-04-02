@@ -9,7 +9,8 @@
   },
   "devDependencies": {
     "fs": "0.0.1-security",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "pegjs": "^0.10.0"
   },
   "dependencies": {
     "chai": "^4.2.0",
