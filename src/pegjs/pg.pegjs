@@ -10,12 +10,12 @@ PG = lines:NodeOrEdge+
   return {
     nodes: lines.map(l => l.node).filter(v => v),
     edges: lines.map(l => l.edge).filter(v => v),
-    // nodeProperties: Object.keys(nodePropHash),
-    // edgeProperties: Object.keys(edgePropHash)
     nodeCount: nodeCount,
     edgeCount: edgeCount,
     nodeProperties: nodePropHash,
     edgeProperties: edgePropHash
+    // nodeProperties: Object.keys(nodePropHash),
+    // edgeProperties: Object.keys(edgePropHash)
   }
 }
 
