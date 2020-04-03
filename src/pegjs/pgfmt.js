@@ -35,7 +35,25 @@ const nodeFile = outFilePrefix + '.neo.nodes';
 const edgeFile = outFilePrefix + '.neo.edges';
 
 // Parse PG file
-const objectTree = new parser.parse(inputText);
+// const objectTree = new parser.parse(inputText);
+try {
+  var objectTree = new parser.parse(inputText);
+} catch (err) {
+  let startLine = err.location.start.line;
+  let endLine = err.location.end.line;
+  let startCol = err.location.start.column;
+  let endCol = err.location.end.column;
+  if (startLine == endLine) {
+    console.log(`ERROR line:${startLine}(col:${startCol})\n--`);
+  } else {
+    console.log(`ERROR: line ${startLine}(col:${startCol})-${endLine}(col:${endCol})`);
+  }
+  inputText.split('\n').slice(startLine-1, endLine).forEach((line) => {
+    console.log(line)
+  });
+  process.exit(1);
+}
+
 const nodeProps = Object.keys(objectTree.nodeProperties);
 const edgeProps = Object.keys(objectTree.edgeProperties);
 const basicProps = ['nodes', 'edges', 'id', 'from', 'to', 'direction', 'labels', 'properties'];
