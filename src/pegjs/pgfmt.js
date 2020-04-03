@@ -7,6 +7,7 @@ const parser = require('./pg_parser.js');
 const commander = require('commander')
       .option('-f, --format <FORMAT>', 'json, neo', 'debug')
       .option('-o, --output_dir <DIR>', 'directory path for results', './')
+      .option('-c, --check', 'check validity of input graph')
       .arguments('<PG_FILE_PATH>')
       .version(require("../../package.json").version);
 
@@ -54,6 +55,35 @@ try {
   process.exit(1);
 }
 
+// Check validity of graph
+if (commander.check) {
+  let edgeExistFor = {};
+  objectTree.edges.forEach((e) => {
+    edgeExistFor[e.from] = true;
+    edgeExistFor[e.to] = true;
+  });
+
+  let nodeExist = {};
+  objectTree.nodes.forEach(n => {
+    nodeExist[n.id] = true;
+  });
+
+  Object.keys(edgeExistFor).forEach((n) => {
+    if (! nodeExist[n]) {
+      console.log('missing_node: ' + n);
+    }
+  });
+
+  Object.keys(nodeExist).forEach((n) => {
+    if (! edgeExistFor[n]) {
+      console.log('orphan_node: ' + n);
+    }
+  });
+
+  process.exit(0);
+}
+
+// For output
 const nodeProps = Object.keys(objectTree.nodeProperties);
 const edgeProps = Object.keys(objectTree.edgeProperties);
 const basicProps = ['nodes', 'edges', 'id', 'from', 'to', 'direction', 'labels', 'properties'];
