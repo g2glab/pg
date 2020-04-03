@@ -8,6 +8,7 @@ const commander = require('commander')
       .option('-f, --format <FORMAT>', 'json, neo', 'debug')
       .option('-o, --output_dir <DIR>', 'directory path for results', './')
       .option('-c, --check', 'check validity of input graph')
+      .option('-d, --debug', 'output parsed synatax tree')
       .arguments('<PG_FILE_PATH>')
       .version(require("../../package.json").version);
 
@@ -80,6 +81,11 @@ if (commander.check) {
     }
   });
 
+  process.exit(0);
+}
+
+if (commander.debug) {
+  printJSON(objectTree);
   process.exit(0);
 }
 
