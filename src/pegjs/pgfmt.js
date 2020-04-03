@@ -36,14 +36,14 @@ const nodeFile = outFilePrefix + '.neo.nodes';
 const edgeFile = outFilePrefix + '.neo.edges';
 
 // Parse PG file
-// const objectTree = new parser.parse(inputText);
+let objectTree;
 try {
-  var objectTree = new parser.parse(inputText);
+  objectTree = new parser.parse(inputText);
 } catch (err) {
-  let startLine = err.location.start.line;
-  let endLine = err.location.end.line;
-  let startCol = err.location.start.column;
-  let endCol = err.location.end.column;
+  const startLine = err.location.start.line;
+  const endLine = err.location.end.line;
+  const startCol = err.location.start.column;
+  const endCol = err.location.end.column;
   if (startLine == endLine) {
     console.log(`ERROR line:${startLine}(col:${startCol})\n--`);
   } else {
