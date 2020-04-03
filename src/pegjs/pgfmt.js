@@ -70,13 +70,13 @@ if (commander.check) {
 
   Object.keys(edgeExistFor).forEach((n) => {
     if (! nodeExist[n]) {
-      console.log('missing_node: ' + n);
+      console.log('missing_node:\t' + n);
     }
   });
 
   Object.keys(nodeExist).forEach((n) => {
     if (! edgeExistFor[n]) {
-      console.log('orphan_node: ' + n);
+      console.log('orphan_node:\t' + n);
     }
   });
 
