@@ -99,11 +99,7 @@ Property = WS+ k:Value WS* ':' WS* v:Value
   }
 }
 
-Number = '-'? Integer ('.' [0-9]+)? Exp?
-
-Integer = '0' / [1-9] [0-9]*
-
-Exp = [eE] ('-' / '+')? [0-9]+
+Direction = '--' / '->'
 
 Value = 
 Number
@@ -118,10 +114,16 @@ Number
 {
   return chars.join('');
 }
-/ chars:CHARACTER+
+/ chars:BARE_CHAR+
 {
   return chars.join('');
 }
+
+Number = '-'? Integer ('.' [0-9]+)? Exp?
+
+Integer = '0' / [1-9] [0-9]*
+
+Exp = [eE] ('-' / '+')? [0-9]+
 
 DoubleStringCharacter = !('"' / "\\") char:.
 {
@@ -141,22 +143,22 @@ SingleStringCharacter = !("'" / "\\") char:.
   return sequence;
 }
 
-EscapeSequence
-  = "'"
-  / '"'
-  / "\\"
-  / "b"  { return "\b";   }
-  / "f"  { return "\f";   }
-  / "n"  { return "\n";   }
-  / "r"  { return "\r";   }
-  / "t"  { return "\t";   }
-  / "v"  { return "\x0B"; }
+EscapeSequence = "'" / '"' / "\\"
+/ "b"  { return "\b";   }
+/ "f"  { return "\f";   }
+/ "n"  { return "\n";   }
+/ "r"  { return "\r";   }
+/ "t"  { return "\t";   }
+/ "v"  { return "\x0B"; }
+
+BARE_CHAR = [^:\u0020\u0009\u000D\u000A]
 
 // space or tab
 WS = [\u0020\u0009]
 
 // CR or LF
 NEWLINE = [\u000D\u000A]
+
 NON_NEWLINE = [^\u000D\u000A]
 
 COMMENT_LINE = WS* ('#' NON_NEWLINE*)? NEWLINE
@@ -165,7 +167,3 @@ COMMENT_LINE = WS* ('#' NON_NEWLINE*)? NEWLINE
 }
 
 INLINE_COMMENT = WS+ '#' WS+ NON_NEWLINE*
-
-CHARACTER = [^:\u0020\u0009\u000D\u000A]
-
-Direction = '--' / '->'

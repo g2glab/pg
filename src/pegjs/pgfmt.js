@@ -5,7 +5,7 @@ const path = require('path');
 const parser = require('./pg_parser.js');
 
 const commander = require('commander')
-      .option('-f, --format <FORMAT>', 'json, neo', 'default')
+      .option('-f, --format <FORMAT>', 'json, neo', 'debug')
       .option('-o, --output_dir <DIR>', 'directory path for results', './')
       .arguments('<PG_FILE_PATH>')
       .version(require("../../package.json").version);
@@ -42,7 +42,7 @@ const basicProps = ['nodes', 'edges', 'id', 'from', 'to', 'direction', 'labels',
 
 if (commander.format) {
   switch (commander.format) {
-    case 'default':
+    case 'debug':
       // print the whole object tree
       printJSON(objectTree);
       process.exit(0);
