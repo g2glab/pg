@@ -6,8 +6,8 @@ const parser = require('./pg_parser.js');
 
 const commander = require('commander')
       .option('-f, --format <FORMAT>', 'json, neo')
-      .option('-o, --output_dir <DIR>', 'directory path for results', './')
-      .option('-c, --check', 'check validity of input graph')
+      .option('-o, --outdir <DIR>', 'output directory', './')
+      .option('-c, --check', 'check for missing/orphan nodes')
       .option('-d, --debug', 'output parsed synatax tree')
       .arguments('<PG_FILE_PATH>')
       .version(require("../../package.json").version)
@@ -21,9 +21,9 @@ if(commander.args[0]) {
   const inputFile = commander.args[0];
   const basename = path.basename(inputFile, '.pg');
   inputText = fs.readFileSync(inputFile, "utf8").toString();
-  outFilePrefix = path.join(commander.output_dir, basename);
-  if (!fs.existsSync(commander.output_dir)) {
-    fs.mkdirSync(commander.output_dir, {recursive: true});
+  outFilePrefix = path.join(commander.outdir, basename);
+  if (!fs.existsSync(commander.outdir)) {
+    fs.mkdirSync(commander.outdir, {recursive: true});
   }
 } else if (process.stdin.isTTY) {
   commander.help();
