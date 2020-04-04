@@ -9,7 +9,7 @@ const commander = require('commander')
       .option('-o, --outdir <DIR>', 'output directory', './')
       .option('-c, --check', 'check for missing/orphan nodes')
       .option('-d, --debug', 'output parsed synatax tree')
-      .arguments('<PG_FILE_PATH>')
+      .arguments('<PG_FILE>')
       .version(require("../../package.json").version)
       .parse(process.argv);
 
