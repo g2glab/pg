@@ -32,9 +32,6 @@ if(commander.args[0]) {
   outFilePrefix = 'pgfmt';
 }
 
-const nodeFile = outFilePrefix + '.neo.nodes';
-const edgeFile = outFilePrefix + '.neo.edges';
-
 // Parse PG file
 let objectTree;
 try {
@@ -70,7 +67,10 @@ if (commander.format) {
       outputJSON(objectTree);
       break;
     case 'neo':
-      outputNeo(objectTree);
+      outputNeo(objectTree, outFilePrefix);
+      break;
+    case 'pgx':
+      outputPGX(objectTree, outFilePrefix);
       break;
     default:
       console.error(`${commander.format}: unknown output format`);
@@ -91,7 +91,37 @@ function outputJSON(objectTree) {
   console.log(JSON.stringify(objectTree, basicProps.concat(nodeProps).concat(edgeProps), 2));
 }
 
-function outputNeo(objectTree) {
+function outputPGX(objectTree, outFilePrefix) {
+
+  const nodeFile = outFilePrefix + '.pgx.nodes';
+  const edgeFile = outFilePrefix + '.pgx.edges';
+
+  const nodeProps = Object.keys(objectTree.nodeProperties);
+  const edgeProps = Object.keys(objectTree.edgeProperties);
+
+  let i = 1;
+  objectTree.edges.forEach(e => {
+    console.log(i + ' ' + e.from + ' ' + e.to);
+    i++;
+  });
+
+  // Output nodes
+  let nodeLines = [];
+
+  // fs.writeFile(nodeFile, nodeLines.join('\n') + '\n', (err) => {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     console.log(`"${nodeFile}" has been created.`);
+  //   }
+  // });
+}
+
+function outputNeo(objectTree, outFilePrefix) {
+
+  const nodeFile = outFilePrefix + '.neo.nodes';
+  const edgeFile = outFilePrefix + '.neo.edges';
+
   const nodeProps = Object.keys(objectTree.nodeProperties);
   const edgeProps = Object.keys(objectTree.edgeProperties);
 
