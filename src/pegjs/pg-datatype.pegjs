@@ -101,29 +101,46 @@ Property = WS+ k:Value WS* ':' WS* v:Value
 
 Direction = '--' / '->'
 
-Value = 
-Number
+Value = '-'? Integer
 {
-  return text();
+  return {
+    datatype: 'integer'
+    value: text();
+  }
 }
-/'"' chars:DoubleStringCharacter* '"'
+/ '-'? Integer '.' [0-9]+
 {
-  return chars.join('');
+  return {
+    datatype: 'decimal'
+    value: text();
+  }
+}
+/ '"' chars:DoubleStringCharacter* '"'
+{
+  return {
+    datatype: string,
+    subtype: double,
+    value: chars.join('');
+  }
 }
 / "'" chars:SingleStringCharacter* "'"
 {
-  return chars.join('');
+  return {
+    datatype: string,
+    subtype: single,
+    value: chars.join('');
+  }
 }
 / chars:BARE_CHAR+
 {
-  return chars.join('');
+  return {
+    datatype: string,
+    subtype: bare,
+    value: chars.join('');
+  }
 }
 
-Number = '-'? Integer ('.' [0-9]+)? Exp?
-
 Integer = '0' / [1-9] [0-9]*
-
-Exp = [eE] ('-' / '+')? [0-9]+
 
 DoubleStringCharacter = !('"' / "\\") char:.
 {
