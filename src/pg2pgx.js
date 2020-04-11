@@ -21,15 +21,13 @@ let arrEdgePropType = [];
 const fileNodes = prefix + '.pgx.nodes';
 const fileEdges = prefix + '.pgx.edges';
 const fileConfig = prefix + '.pgx.json';
+const streamNodes = fs.createWriteStream(fileNodes);
+const streamEdges = fs.createWriteStream(fileEdges);
 
 const sep = ',';
 
 let rs = fs.createReadStream(pathPg);
 let rl = readline.createInterface(rs, {});
-
-fs.writeFile(fileNodes, '', function (err) {});
-fs.writeFile(fileEdges, '', function (err) {});
-fs.writeFile(fileConfig, '', function (err) {});
 
 rl.on('line', function(line) {
   if (pg.isLineRead(line)) {
@@ -63,7 +61,7 @@ function addNodeLine(id, labels, props) {
       output[1] = key;
       let type = 'string';
       output = output.concat(format(value.rmdq(), type));
-      fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+      streamNodes.write(output.join(sep) + '\n');
       if (arrNodeProp.indexOf(key) == -1) {
         let propType = { name: key, type: type };
         arrNodeProp.push(key); 
@@ -76,7 +74,7 @@ function addNodeLine(id, labels, props) {
     output[0] = id;
     output[1] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
-    fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+    streamNodes.write(output.join(sep) + '\n');
   } else {
     for (let [key, values] of props) {
       if (key == '_label') {
@@ -88,7 +86,7 @@ function addNodeLine(id, labels, props) {
           output[1] = key;
           let type = value.type();
           output = output.concat(format(value.rmdq(), type));
-          fs.appendFile(fileNodes, output.join(sep) + '\n', function (err) {});
+          streamNodes.write(output.join(sep) + '\n');
           if (arrNodeProp.indexOf(key) == -1) {
             let propType = { name: key, type: type };
             arrNodeProp.push(key); 
@@ -110,24 +108,24 @@ function addEdgeLine(id1, id2, label, props) {
     output[3] = label;
     output[4] = '%20'; // %20 means 'no property' in PGX syntax
     output = output.concat(format('', 'none'));
-    fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
+    streamEdges.write(output.join(sep) + '\n');
   } else {
     for (let [key, values] of props) {
       for (let value of values) {
-      let output = [];
-      output[0] = cntEdges; // edge id
-      output[1] = id1; // source node
-      output[2] = id2; // target node
-      output[3] = label;
-      output[4] = key;
-      let type = value.type();
-      output = output.concat(format(value.rmdq(), type));
-      fs.appendFile(fileEdges, output.join(sep) + '\n', function (err) {});
-      if (arrEdgeProp.indexOf(key) == -1) {
-        let propType = { name: key, type: type };
-        arrEdgeProp.push(key);
-        arrEdgePropType.push(propType);
-      }
+        let output = [];
+        output[0] = cntEdges; // edge id
+        output[1] = id1; // source node
+        output[2] = id2; // target node
+        output[3] = label;
+        output[4] = key;
+        let type = value.type();
+        output = output.concat(format(value.rmdq(), type));
+        streamEdges.write(output.join(sep) + '\n');
+        if (arrEdgeProp.indexOf(key) == -1) {
+          let propType = { name: key, type: type };
+          arrEdgeProp.push(key);
+          arrEdgePropType.push(propType);
+        }
       }
     }
   }
