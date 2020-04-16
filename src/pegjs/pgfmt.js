@@ -9,6 +9,7 @@ const commander = require('commander')
       .option('-o, --outdir <DIR>', 'output directory', './')
       .option('-c, --check', 'check for missing/orphan nodes')
       .option('-d, --debug', 'output parsed synatax tree')
+      .option('-s, --stats', 'output stats for nodes and labels')
       .arguments('<PG_FILE>')
       .version(require("../../package.json").version)
       .parse(process.argv);
@@ -53,15 +54,23 @@ try {
 }
 
 // Output
+function replacer(key, value) {
+  if (key === 'nodes') {
+    return undefined;
+  } else if (key === 'edges') {
+    return undefined;
+  } else {
+    return value;
+  }
+}
+
 if (commander.check) {
   checkGraph(objectTree);
-  process.exit(0);
-}
-if (commander.debug) {
+} else if (commander.stats) {
+  console.log(JSON.stringify(objectTree, replacer, 2));
+} else if (commander.debug) {
   console.log(JSON.stringify(objectTree, null, 2));
-  process.exit(0);
-}
-if (commander.format) {
+} else if (commander.format) {
   switch (commander.format) {
     case 'json':
       outputJSON(objectTree);
