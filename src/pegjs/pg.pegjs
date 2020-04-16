@@ -1,6 +1,8 @@
 {
   let nodeCount = 0;
   let edgeCount = 0;
+  let nodeLabelHash = {};
+  let edgeLabelHash = {};
   let nodePropHash = {};
   let edgePropHash = {};
 }
@@ -12,6 +14,8 @@ PG = lines:NodeOrEdge+
     edges: lines.map(l => l.edge).filter(v => v),
     nodeCount: nodeCount,
     edgeCount: edgeCount,
+    nodeLabels: nodeLabelHash,
+    edgeLabels: edgeLabelHash,
     nodeProperties: nodePropHash,
     edgeProperties: edgePropHash
     // nodeProperties: Object.keys(nodePropHash),
@@ -51,6 +55,14 @@ Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? NEWLINE C
 
   nodeCount++;
 
+  l.forEach(label => {
+    if (nodeLabelHash[label]) {
+      nodeLabelHash[label]++;
+    } else {
+      nodeLabelHash[label] = 1;
+    }
+  });
+
   return {
     id: id,
     labels: l,
@@ -76,6 +88,14 @@ Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property
   });
 
   edgeCount++;
+
+  l.forEach(label => {
+    if (edgeLabelHash[label]) {
+      edgeLabelHash[label]++;
+    } else {
+      edgeLabelHash[label] = 1;
+    }
+  });
 
   return {
     from: f,
