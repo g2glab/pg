@@ -122,11 +122,11 @@ Property = WS+ k:Value WS* ':' WS* v:Value
 Direction = '--' / '->'
 
 Value = 
-Number
-{
-  return text();
-}
-/'"' chars:DoubleStringCharacter* '"'
+// Number
+// {
+//   return text();
+// }
+'"' chars:DoubleStringCharacter* '"'
 {
   return chars.join('');
 }
@@ -139,11 +139,11 @@ Number
   return chars.join('');
 }
 
-Number = '-'? Integer ('.' [0-9]+)? Exp?
+// Number = '-'? Integer ('.' [0-9]+)? Exp?
 
-Integer = '0' / [1-9] [0-9]*
+// Integer = '0' / [1-9] [0-9]*
 
-Exp = [eE] ('-' / '+')? [0-9]+
+// Exp = [eE] ('-' / '+')? [0-9]+
 
 DoubleStringCharacter = !('"' / "\\") char:.
 {
