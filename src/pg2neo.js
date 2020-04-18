@@ -14,11 +14,11 @@ let nodeProps = new Map();
 let edgeProps = new Map();
 
 const pathNodes = prefix + '.neo.nodes';
+const nodeStream = fs.createWriteStream(pathNodes);
 const pathEdges = prefix + '.neo.edges';
+const edgeStream = fs.createWriteStream(pathEdges);
 const sep = '\t';
 
-fs.writeFile(pathNodes, '', (err) => {});
-fs.writeFile(pathEdges, '', (err) => {});
 
 listProps(() => {
   writeHeaderNodes(() => {
@@ -78,7 +78,7 @@ function writeHeaderNodes(callback) {
   Array.from(nodeProps.keys()).forEach((key, i) => {
     output[i + 2] = key + ':' + nodeProps.get(key);
   });
-  fs.appendFile(pathNodes, output.join(sep) + '\n', (err) => {});
+  nodeStream.write(output.join(sep) + '\n', (err) => {});
   callback();
 }
 
@@ -87,7 +87,7 @@ function writeHeaderEdges(callback) {
   Array.from(edgeProps.keys()).forEach((key, i) => {
     output[i + 3] = key + ':' + edgeProps.get(key);
   });
-  fs.appendFile(pathEdges, output.join(sep) + '\n', (err) => {});
+  edgeStream.write(output.join(sep) + '\n');
   callback();
 }
 
@@ -105,6 +105,8 @@ function writeNodesAndEdges(callback) {
     }
   });
   rl.on('close', () => {
+    nodeStream.end();
+    edgeStream.end();
     callback();
   });
 }
@@ -118,7 +120,7 @@ function addNode(id, labels, props) {
   Array.from(nodeProps.keys()).forEach((key, i) => {
     output[i + 2] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
-  fs.appendFile(pathNodes, output.join(sep) + '\n', (err) => {});
+  nodeStream.write(output.join(sep) + '\n');
 }
 
 function addEdge(id1, id2, labels, props) {
@@ -130,5 +132,5 @@ function addEdge(id1, id2, labels, props) {
   Array.from(edgeProps.keys()).forEach((key, i) => {
     output[i + 3] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
-  fs.appendFile(pathEdges, output.join(sep) + '\n', (err) => {});
+  edgeStream.write(output.join(sep) + '\n');
 }
