@@ -138,8 +138,8 @@ function peg$parse(input, options) {
 
   var peg$FAILED = {},
 
-      peg$startRuleFunctions = { PG: peg$parsePG },
-      peg$startRuleFunction  = peg$parsePG,
+      peg$startRuleFunctions = { NodeOrEdge: peg$parseNodeOrEdge },
+      peg$startRuleFunction  = peg$parseNodeOrEdge,
 
       peg$c0 = function(lines) {
         return {
@@ -515,7 +515,7 @@ function peg$parse(input, options) {
                 s6 = null;
               }
               if (s6 !== peg$FAILED) {
-                s7 = peg$parseNEWLINE();
+                s7 = peg$parseENDOFLINE();
                 if (s7 !== peg$FAILED) {
                   s8 = [];
                   s9 = peg$parseCOMMENT_LINE();
@@ -628,7 +628,7 @@ function peg$parse(input, options) {
                         s10 = null;
                       }
                       if (s10 !== peg$FAILED) {
-                        s11 = peg$parseNEWLINE();
+                        s11 = peg$parseENDOFLINE();
                         if (s11 !== peg$FAILED) {
                           s12 = [];
                           s13 = peg$parseCOMMENT_LINE();
@@ -1251,6 +1251,38 @@ function peg$parse(input, options) {
     return s0;
   }
 
+  function peg$parseENDOFLINE() {
+    var s0, s1;
+
+    s0 = peg$currPos;
+    peg$silentFails++;
+    if (input.length > peg$currPos) {
+      s1 = input.charAt(peg$currPos);
+      peg$currPos++;
+    } else {
+      s1 = peg$FAILED;
+      if (peg$silentFails === 0) { peg$fail(peg$c20); }
+    }
+    peg$silentFails--;
+    if (s1 === peg$FAILED) {
+      s0 = void 0;
+    } else {
+      peg$currPos = s0;
+      s0 = peg$FAILED;
+    }
+    if (s0 === peg$FAILED) {
+      if (peg$c45.test(input.charAt(peg$currPos))) {
+        s0 = input.charAt(peg$currPos);
+        peg$currPos++;
+      } else {
+        s0 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$c46); }
+      }
+    }
+
+    return s0;
+  }
+
   function peg$parseNEWLINE() {
     var s0;
 
@@ -1415,7 +1447,7 @@ function peg$parse(input, options) {
 
   peg$result = peg$startRuleFunction();
 
-  if (peg$result !== peg$FAILED) {
+  if (peg$result !== peg$FAILED && peg$currPos === input.length) {
     return peg$result;
   } else {
     if (peg$result !== peg$FAILED && peg$currPos < input.length) {
