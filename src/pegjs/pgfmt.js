@@ -43,12 +43,14 @@ try {
   const startCol = err.location.start.column;
   const endCol = err.location.end.column;
   if (startLine == endLine) {
-    console.error(`ERROR line:${startLine}(col:${startCol})\n--`);
+    console.error(`ERROR line:${startLine}(col:${startCol})`);
   } else {
     console.error(`ERROR: line ${startLine}(col:${startCol})-${endLine}(col:${endCol})`);
   }
+  console.error(err.message);
+  console.error('--')
   inputText.split('\n').slice(startLine-1, endLine).forEach((line) => {
-    console.error(line)
+    console.error(setBackgroundRed(line.substring(0, startCol - 1)) + line.substring(startCol - 1));
   });
   process.exit(1);
 }
@@ -220,3 +222,14 @@ function checkGraph(objectTree) {
   });
 }
 
+function setForgroundRed(text) {
+  var red     = '\u001b[31m';
+  var reset   = '\u001b[0m';
+  return red + text + reset; 
+}
+
+function setBackgroundRed(text) {
+  var redBack  = '\u001b[41m';
+  var reset   = '\u001b[0m';
+  return redBack + text + reset; 
+}
