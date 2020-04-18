@@ -223,13 +223,13 @@ function checkGraph(objectTree) {
 }
 
 function setForgroundRed(text) {
-  var red     = '\u001b[31m';
-  var reset   = '\u001b[0m';
-  return red + text + reset; 
+  var redForground = '\u001b[31m';
+  var reset = '\u001b[0m';
+  return redForground + text + reset;
 }
 
 function setBackgroundRed(text) {
-  var redBack  = '\u001b[41m';
-  var reset   = '\u001b[0m';
-  return redBack + text + reset; 
+  var redBackground = '\u001b[41m';
+  var reset = '\u001b[0m';
+  return redBackground + text + reset;
 }
