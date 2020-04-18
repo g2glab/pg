@@ -33,6 +33,14 @@ if(commander.args[0]) {
   outFilePrefix = 'pgfmt';
 }
 
+
+String.prototype.quoteIfNeeded = function() {
+  if(this.includes('"')) {
+    return `"${this.replace('"', '""')}"`;
+  }
+  return this;
+}
+
 // Parse PG file
 let objectTree;
 try {
@@ -148,7 +156,7 @@ function outputNeo(objectTree, outFilePrefix) {
     line.push(n.labels)
     nodeProps.forEach(p => {
       if (n.properties[p]) {
-        line.push(n.properties[p].join(';'));
+        line.push(n.properties[p].join(';').quoteIfNeeded());
       } else {
         line.push('');
       }
@@ -177,7 +185,7 @@ function outputNeo(objectTree, outFilePrefix) {
     line.push(e.labels)
     edgeProps.forEach(p => {
       if (e.properties[p]) {
-        line.push(e.properties[p].join(';'));
+        line.push(e.properties[p].join(';').quoteIfNeeded());
       } else {
         line.push('');
       }
@@ -219,4 +227,3 @@ function checkGraph(objectTree) {
     }
   });
 }
-
