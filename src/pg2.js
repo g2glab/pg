@@ -43,7 +43,7 @@ exports.extractItems = function (line) {
   }
   // LABELS
   let labels = new Set();
-  let regexLabels = /\s:("[^"]+"|[^"\s]+)/g;
+  let regexLabels = /\s:("[^"]+"|[^:"\u0020\u0009]+)/g;
   while (result = regexLabels.exec(line)) {
     labels.add(result[1].rmdq());
   }
