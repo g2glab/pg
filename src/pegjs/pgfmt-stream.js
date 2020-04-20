@@ -66,8 +66,12 @@ function listProps(callback) {
   rl.on('line', function(line) {
     if (line.charAt(0) != '#' && line != '') {
       const objectTree = parser.parse(line);
-      Object.keys(objectTree.nodeProperties);
-      // add to props
+      Object.keys(objectTree.nodeProperties).forEach(p => {
+        nodeProps[p] = true;
+      });
+      Object.keys(objectTree.edgeProperties).forEach(p => {
+        edgeProps[p] = true;
+      });
     }
   });
   rl.on('close', () => {
@@ -101,15 +105,13 @@ function addProps(allProps, props) {
 
 function writeHeaderNodes(callback) {
   let output = ['id:ID', ':LABEL'];
-  // add props
-  nodesOutStream.write(output.join(sep) + '\n', (err) => {});
+  nodesOutStream.write(output.concat(Object.keys(nodeProps)).join(sep) + '\n', (err) => {});
   callback();
 }
 
 function writeHeaderEdges(callback) {
   let output = [':START_ID', ':END_ID', ':TYPE'];
-  // add props
-  edgesOutStream.write(output.join(sep) + '\n');
+  edgesOutStream.write(output.concat(Object.keys(edgeProps)).join(sep) + '\n', (err) => {});
   callback();
 }
 
@@ -119,14 +121,11 @@ function writeNodesAndEdges(callback) {
   rl.on('line', (line) => {
     if (line.charAt(0) != '#' && line != '') {
       const objectTree = parser.parse(line);
-      const nodeProps = Object.keys(objectTree.nodeProperties);
-      const edgeProps = Object.keys(objectTree.edgeProperties);
       objectTree.nodes.forEach(n => {
         let line = [];
         line.push(n.id)
         line.push(n.labels)
-        // consider all nodes
-        nodeProps.forEach(p => {
+        Object.keys(nodeProps).forEach(p => {
           if (n.properties[p]) {
             line.push(n.properties[p].join(';'));
           } else {
@@ -139,8 +138,7 @@ function writeNodesAndEdges(callback) {
         let line = [];
         line.push(e.from, e.to)
         line.push(e.labels)
-        // consider all props
-        edgeProps.forEach(p => {
+        Object.keys(edgeProps).forEach(p => {
           if (e.properties[p]) {
             line.push(e.properties[p].join(';'));
           } else {
