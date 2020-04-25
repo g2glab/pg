@@ -2,7 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 const parser = require('./pg_parser.js');
+
 
 const commander = require('commander')
       .option('-f, --format <FORMAT>', 'json, neo')
@@ -15,215 +17,175 @@ const commander = require('commander')
       .parse(process.argv);
 
 // Get input and output file names
-let inputText;
-
+const sep = '\t';
+let inputFile;
 let outFilePrefix;
+let nodesFile;
+let edgesFile;
+let nodesOutStream;
+let edgesOutStream;
+let nodeProps = {};
+let edgeProps = {};
 if(commander.args[0]) {
-  const inputFile = commander.args[0];
+  inputFile = commander.args[0];
   const basename = path.basename(inputFile, '.pg');
-  inputText = fs.readFileSync(inputFile, "utf8").toString();
-  outFilePrefix = path.join(commander.outdir, basename);
   if (!fs.existsSync(commander.outdir)) {
     fs.mkdirSync(commander.outdir, {recursive: true});
   }
+  outFilePrefix = path.join(commander.outdir, basename);
+  nodesFile = outFilePrefix + '.neo.nodes';
+  edgesFile = outFilePrefix + '.neo.edges';
+  nodesOutStream = fs.createWriteStream(nodesFile);
+  edgesOutStream = fs.createWriteStream(edgesFile);
+  listProps(() => {
+    writeHeaderNodes(() => {
+      writeHeaderEdges(() => {
+        writeNodesAndEdges(() => {
+          console.log('"' + nodesFile + '" has been created.');
+          console.log('"' + edgesFile + '" has been created.');
+        });
+      });
+    });
+  });
 } else if (process.stdin.isTTY) {
   commander.help();
 } else {
-  inputText = fs.readFileSync(process.stdin.fd).toString();
-  outFilePrefix = 'pgfmt';
-}
-
-
-String.prototype.quoteIfNeeded = function() {
-  if(this.includes('"')) {
-    return `"${this.replace('"', '""')}"`;
-  }
-  return this;
-}
-
-// Parse PG file
-let objectTree;
-try {
-  objectTree = new parser.parse(inputText);
-} catch (err) {
-  const startLine = err.location.start.line;
-  const endLine = err.location.end.line;
-  const startCol = err.location.start.column;
-  const endCol = err.location.end.column;
-  if (startLine == endLine) {
-    console.error(`ERROR line:${startLine}(col:${startCol})\n--`);
-  } else {
-    console.error(`ERROR: line ${startLine}(col:${startCol})-${endLine}(col:${endCol})`);
-  }
-  inputText.split('\n').slice(startLine-1, endLine).forEach((line) => {
-    console.error(line)
+  const reader = readline.createInterface(process.stdin);
+  reader.on('line', (line) => {
+    outputNeoStdout(line);
   });
-  process.exit(1);
-}
-
-// Output
-function replacer(key, value) {
-  if (key === 'nodes') {
-    return undefined;
-  } else if (key === 'edges') {
-    return undefined;
-  } else {
-    return value;
-  }
-}
-
-if (commander.check) {
-  checkGraph(objectTree);
-} else if (commander.stats) {
-  console.log(JSON.stringify(objectTree, replacer, 2));
-} else if (commander.debug) {
-  console.log(JSON.stringify(objectTree, null, 2));
-} else if (commander.format) {
-  switch (commander.format) {
-    case 'json':
-      outputJSON(objectTree);
-      break;
-    case 'neo':
-      outputNeo(objectTree, outFilePrefix);
-      break;
-    case 'pgx':
-      outputPGX(objectTree, outFilePrefix);
-      break;
-    default:
-      console.error(`${commander.format}: unknown output format`);
-      break;
-  }
-} else {
-  console.log(JSON.stringify(objectTree, null, 2));
+  // reader.on('close', () => {
+  process.stdin.on('end', () => {
+  });
 }
 
 // Functions
-function outputJSON(objectTree) {
-  // print selected properties for JSON-PG
-  const basicProps = ['nodes', 'edges', 'id', 'from', 'to', 'direction', 'labels', 'properties'];
-
-  const nodeProps = Object.keys(objectTree.nodeProperties);
-  const edgeProps = Object.keys(objectTree.edgeProperties);
-  
-  console.log(JSON.stringify(objectTree, basicProps.concat(nodeProps).concat(edgeProps), 2));
-}
-
-function outputPGX(objectTree, outFilePrefix) {
-
-  const nodeFile = outFilePrefix + '.pgx.nodes';
-  const edgeFile = outFilePrefix + '.pgx.edges';
-
-  const nodeProps = Object.keys(objectTree.nodeProperties);
-  const edgeProps = Object.keys(objectTree.edgeProperties);
-
-  let i = 1;
-  objectTree.edges.forEach(e => {
-    console.log(i + ' ' + e.from + ' ' + e.to);
-    i++;
+function listProps(callback) {
+  let rs = fs.createReadStream(inputFile, 'utf8');
+  let rl = readline.createInterface(rs, {});
+  rl.on('line', function(line) {
+    if (line.charAt(0) != '#' && line != '') {
+      const objectTree = parser.parse(line);
+      Object.keys(objectTree.nodeProperties).forEach(p => {
+        nodeProps[p] = true;
+      });
+      Object.keys(objectTree.edgeProperties).forEach(p => {
+        edgeProps[p] = true;
+      });
+    }
   });
-
-  // Output nodes
-  let nodeLines = [];
-
-  // fs.writeFile(nodeFile, nodeLines.join('\n') + '\n', (err) => {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     console.log(`"${nodeFile}" has been created.`);
-  //   }
-  // });
+  rl.on('close', () => {
+    callback();
+  });
 }
 
-function outputNeo(objectTree, outFilePrefix) {
-
-  const nodeFile = outFilePrefix + '.neo.nodes';
-  const edgeFile = outFilePrefix + '.neo.edges';
-
-  const nodeProps = Object.keys(objectTree.nodeProperties);
-  const edgeProps = Object.keys(objectTree.edgeProperties);
-
-  // Output nodes
-  let nodeHeader = ['id:ID', ':LABEL'];
-  nodeHeader = nodeHeader.concat(nodeProps);
-
-  let nodeLines = [];
-
-  nodeLines.push(nodeHeader.join('\t'));
-
-  objectTree.nodes.forEach(n => {
-    let line = [];
-    line.push(n.id)
-    line.push(n.labels)
-    nodeProps.forEach(p => {
-      if (n.properties[p]) {
-        line.push(n.properties[p].join(';').quoteIfNeeded());
-      } else {
-        line.push('');
+function addProps(allProps, props) {
+  for (let [key, values] of props) {
+    if (values.size === 1) {
+      for (let value of values) {
+        if (! allProps.has(key)) {
+          allProps.set(key, value.type());
+        }
       }
-    });
-    nodeLines.push(line.join('\t'));
-  });
-
-  fs.writeFile(nodeFile, nodeLines.join('\n') + '\n', (err) => {
-    if (err) {
-      console.log(err);
     } else {
-      console.log(`"${nodeFile}" has been created.`);
-    }
-  });
-
-  // Output edges
-  let edgeHeader = [':START_ID', ':END_ID', ':TYPE'];
-  edgeHeader = edgeHeader.concat(edgeProps);
-
-  let edgeLines = [];
-  edgeLines.push(edgeHeader.join('\t'));
-
-  objectTree.edges.forEach(e => {
-    let line = [];
-    line.push(e.from, e.to)
-    line.push(e.labels)
-    edgeProps.forEach(p => {
-      if (e.properties[p]) {
-        line.push(e.properties[p].join(';').quoteIfNeeded());
-      } else {
-        line.push('');
+      let type = null;
+      for (let value of values) {
+        if ((type === null) || (type === value.type())) {
+          type = value.type();
+        } else {
+          console.log('WARNING: Neo4j only allows homogeneous lists of datatypes (', type, ' and ', value.type());
+        }
       }
-    });
-    edgeLines.push(line.join('\t'));
-  });
-
-  fs.writeFile(edgeFile, edgeLines.join('\n') + '\n', (err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(`"${edgeFile}" has been created.`);
+      if ((! allProps.has(key)) || (allProps.get(key) === type)) {
+        allProps.set(key, type + '[]');
+      }
     }
+  }
+}
+
+function writeHeaderNodes(callback) {
+  let output = ['id:ID', ':LABEL'];
+  nodesOutStream.write(output.concat(Object.keys(nodeProps)).join(sep) + '\n', (err) => {});
+  callback();
+}
+
+function writeHeaderEdges(callback) {
+  let output = [':START_ID', ':END_ID', ':TYPE'];
+  edgesOutStream.write(output.concat(Object.keys(edgeProps)).join(sep) + '\n', (err) => {});
+  callback();
+}
+
+function writeNodesAndEdges(callback) {
+  let rs = fs.createReadStream(inputFile, 'utf8');
+  let rl = readline.createInterface(rs, {});
+  rl.on('line', (line) => {
+    if (line.charAt(0) != '#' && line != '') {
+      const objectTree = parser.parse(line);
+      objectTree.nodes.forEach(n => {
+        let line = [];
+        line.push(n.id)
+        line.push(n.labels)
+        Object.keys(nodeProps).forEach(p => {
+          if (n.properties[p]) {
+            line.push(n.properties[p].join(';'));
+          } else {
+            line.push('');
+          }
+        });
+        nodesOutStream.write(line.join(sep) + '\n');
+      });
+      objectTree.edges.forEach(e => {
+        let line = [];
+        line.push(e.from, e.to)
+        line.push(e.labels)
+        Object.keys(edgeProps).forEach(p => {
+          if (e.properties[p]) {
+            line.push(e.properties[p].join(';'));
+          } else {
+            line.push('');
+          }
+        });
+        edgesOutStream.write(line.join(sep) + '\n');
+      });
+    }
+  });
+  rl.on('close', () => {
+    nodesOutStream.end();
+    edgesOutStream.end();
+    callback();
   });
 }
 
-function checkGraph(objectTree) {
-  // Check validity of graph
-  let edgeExistFor = {};
-  objectTree.edges.forEach((e) => {
-    edgeExistFor[e.from] = true;
-    edgeExistFor[e.to] = true;
-  });
-
-  let nodeExist = {};
-  objectTree.nodes.forEach(n => {
-    nodeExist[n.id] = true;
-  });
-
-  Object.keys(edgeExistFor).forEach((n) => {
-    if (! nodeExist[n]) {
-      console.error('missing node:\t' + n);
-    }
-  });
-
-  Object.keys(nodeExist).forEach((n) => {
-    if (! edgeExistFor[n]) {
-      console.error('orphan node:\t' + n);
-    }
-  });
+function outputNeoStdout(line) {
+  if (line.charAt(0) != '#' && line != '') {
+    const objectTree = parser.parse(line);
+    const nodeProps = Object.keys(objectTree.nodeProperties);
+    const edgeProps = Object.keys(objectTree.edgeProperties);
+    objectTree.nodes.forEach(n => {
+      let line = [];
+      line.push(n.id)
+      line.push(n.labels)
+      nodeProps.forEach(p => {
+        if (n.properties[p]) {
+          line.push(n.properties[p].join(';'));
+        } else {
+          line.push('');
+        }
+      });
+      console.log(line.join('\t'));
+    });
+    objectTree.edges.forEach(e => {
+      let line = [];
+      line.push(e.from, e.to)
+      line.push(e.labels)
+      edgeProps.forEach(p => {
+        if (e.properties[p]) {
+          line.push(e.properties[p].join(';'));
+        } else {
+          line.push('');
+        }
+      });
+      console.log(line.join('\t'));
+    });
+  }
 }

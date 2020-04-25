@@ -36,7 +36,7 @@ NodeOrEdge = n:Node
   }
 }
 
-Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? ENDOFLINE COMMENT_LINE*
+Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? (NEWLINE / EOF) COMMENT_LINE*
 {
   let propObj = {};
   p.forEach(prop => {
@@ -70,7 +70,7 @@ Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? ENDOFLINE
   }
 }
 
-Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? ENDOFLINE COMMENT_LINE*
+Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? (NEWLINE / EOF) COMMENT_LINE*
 {
   let propObj = {};
   p.forEach(prop => {
@@ -176,15 +176,14 @@ BARE_CHAR = [^:\u0020\u0009\u000D\u000A]
 // space or tab
 WS = [\u0020\u0009]
 
-
-ENDOFLINE = !. / [\u000D\u000A]
-
 // CR or LF
 NEWLINE = [\u000D\u000A]
 
 NON_NEWLINE = [^\u000D\u000A]
 
-COMMENT_LINE = WS* ('#' NON_NEWLINE*)? NEWLINE
+EOF = !.
+
+COMMENT_LINE = WS* ('#' NON_NEWLINE*)? (NEWLINE / EOF)
 {
     return;
 }
