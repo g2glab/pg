@@ -15,6 +15,8 @@ let edgeProps = new Map();
 
 const pathNodes = prefix + '.aws.nodes';
 const pathEdges = prefix + '.aws.edges';
+const streamNodes = fs.createWriteStream(pathNodes);
+const streamEdges = fs.createWriteStream(pathEdges);
 const sep = ',';
 const typeMap = {
   string: 'String',
@@ -22,8 +24,6 @@ const typeMap = {
   int: 'Int'
 };
 
-fs.writeFile(pathNodes, '', function (err) {});
-fs.writeFile(pathEdges, '', function (err) {});
 
 listProps(function() {
   writeHeaderNodes(function() {
@@ -71,9 +71,8 @@ function writeHeaderNodes(callback) {
   Array.from(nodeProps.keys()).forEach((key, i) => {
     output[i + 2] = key + ':' + nodeProps.get(key);
   });
-  fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {
-    callback();
-  });
+  streamNodes.write(output.join(sep) + '\n');
+  callback();
 }
 
 function writeHeaderEdges(callback) {
@@ -81,9 +80,8 @@ function writeHeaderEdges(callback) {
   Array.from(edgeProps.keys()).forEach((key, i) => {
     output[i + 4] = key + ':' + edgeProps.get(key);
   });
-  fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {
-    callback();
-  });
+  streamEdges.write(output.join(sep) + '\n');
+  callback();
 }
 
 function writeNodesAndEdges(callback) {
@@ -115,7 +113,7 @@ function addNode(id, labels, props) {
   Array.from(nodeProps.keys()).forEach((key, i) => {
     output[i + 2] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
-  fs.appendFile(pathNodes, output.join(sep) + '\n', function (err) {});
+  streamNodes.write(output.join(sep) + '\n');
 }
 
 function addEdge(edgeId, id1, id2, labels, props) {
@@ -127,5 +125,5 @@ function addEdge(edgeId, id1, id2, labels, props) {
   Array.from(edgeProps.keys()).forEach((key, i) => {
     output[i + 4] = (lineProps.has(key)) ? lineProps.get(key) : '';
   });
-  fs.appendFile(pathEdges, output.join(sep) + '\n', function (err) {});
+  streamEdges.write(output.join(sep) + '\n');
 }
