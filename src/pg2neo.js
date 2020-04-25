@@ -57,10 +57,10 @@ function listProps(callback) {
 
 function addProps(allProps, props) {
   for (let [key, values] of Object.entries(props)) {
-    if (values.size === 1) {
+    if (values.length === 1) {
       for (let value of values) {
         if (!allProps[key]) {
-          allProps[key] = 'string';
+          allProps[key] = value.type();
         }
       }
     } else {
@@ -73,8 +73,7 @@ function addProps(allProps, props) {
         }
       }
       if ((! allProps[key]) || (allProps[key] === type)) {
-        //        allProps[key] = type + '[]';
-        allProps[key] = 'string';
+        allProps[key] = type + '[]';
       }
     }
   }
