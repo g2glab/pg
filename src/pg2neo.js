@@ -23,7 +23,7 @@ if(cluster.isWorker) {
   const edgeTmpStream = fs.createWriteStream(edgeTmpFile);
   const nodeDstStream = fs.createWriteStream(nodeDstFile);
   const edgeDstStream = fs.createWriteStream(edgeDstFile);
-  let nodeProps, edgeProps;
+  let nodeProps = {}, edgeProps = {};
 
   process.on('message', function(msg) {
     if(msg.type == 'dump') {
@@ -50,16 +50,19 @@ if(cluster.isWorker) {
       edgeLines.on('close', closeHandler);
     }
     else if(msg.type == 'eof') {
-      process.send({type: 'parseCompleted'});
+      process.send({type: 'parseCompleted', nodeProps, edgeProps });
     } else if(msg.type == 'lines') {
       const parsed = msg.lines.map((line) => lineParser.parse(line));
       parsed.forEach((elem) => {
-        if(elem.node)
+        if(elem.node) {
           nodeTmpStream.write(JSON.stringify(elem.node) + "\n");
-        else
+          addProps(nodeProps, elem.node.properties);
+        }
+        else {
           edgeTmpStream.write(JSON.stringify(elem.edge) + "\n");
+          addProps(edgeProps, elem.edge.properties);
+        }
       });
-      process.send({ type: "chunkParsed", parsed: parsed });
     }
   });
 
@@ -86,6 +89,31 @@ if(cluster.isWorker) {
     });
     edgeDstStream.write(output.join(sep) + '\n');
   }
+
+  function addProps(allProps, props) {
+    for (let [key, values] of Object.entries(props)) {
+      if (values.length === 1) {
+        for (let value of values) {
+          if (!allProps[key]) {
+            allProps[key] = value.type();
+          }
+        }
+      } else {
+        let type = null;
+        for (let value of values) {
+          if ((type === null) || (type === value.type())) {
+            type = value.type();
+          } else {
+            console.log('WARNING: Neo4j only allows homogeneous lists of datatypes (', type, ' and ', value.type());
+          }
+        }
+        if ((! allProps[key]) || (allProps[key] === type)) {
+          allProps[key] = type + '[]';
+        }
+      }
+    }
+  }
+
 
 } else {
   const numCPUs = require('os').cpus().length;
@@ -151,15 +179,9 @@ if(cluster.isWorker) {
 
     for (const id in cluster.workers) {
       cluster.workers[id].on('message', (msg) => {
-        if(msg.type == 'chunkParsed') {
-          msg.parsed.forEach((parsed) =>  {
-            if(parsed.node) {
-              addProps(nodeProps, parsed.node.properties);
-            } else if(parsed.edge) {
-              addProps(edgeProps, parsed.edge.properties);
-            }
-          });
-        } else if(msg.type == "parseCompleted") {
+        if(msg.type == "parseCompleted") {
+          nodeProps = Object.assign(nodeProps, msg.nodeProps);
+          edgeProps = Object.assign(edgeProps, msg.edgeProps);
           if(++ended >= numCPUs) {
             callback();
           }
@@ -178,30 +200,6 @@ if(cluster.isWorker) {
           }
         }
       });
-    }
-  }
-
-  function addProps(allProps, props) {
-    for (let [key, values] of Object.entries(props)) {
-      if (values.length === 1) {
-        for (let value of values) {
-          if (!allProps[key]) {
-            allProps[key] = value.type();
-          }
-        }
-      } else {
-        let type = null;
-        for (let value of values) {
-          if ((type === null) || (type === value.type())) {
-            type = value.type();
-          } else {
-            console.log('WARNING: Neo4j only allows homogeneous lists of datatypes (', type, ' and ', value.type());
-          }
-        }
-        if ((! allProps[key]) || (allProps[key] === type)) {
-          allProps[key] = type + '[]';
-        }
-      }
     }
   }
 
