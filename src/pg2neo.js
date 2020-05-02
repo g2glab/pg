@@ -113,19 +113,17 @@ if(cluster.isWorker) {
       }
     }
   }
-
-
-} else {
-  const numCPUs = require('os').cpus().length;
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-  
-  pg.commander;
+} else {  
   if (pg.commander.args.length === 0) {
     console.error("Error: no argument is given!");
     pg.commander.help();
   }
+  let numCPUs = parseInt(pg.commander.parallel);
+  if(numCPUs <= 0) numCPUs = require('os').cpus().length;
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
 
   let nodeProps = {};
   let edgeProps = {};

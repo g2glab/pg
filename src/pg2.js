@@ -5,6 +5,7 @@ let fs = require('fs');
 exports.commander = commander
   .version(require("../package.json").version)
   .option('-o, --output_dir [dir]', 'directory path for results', './')
+  .option('-p, --parallel [num]', 'number of processors to use', '-1')
   .arguments('<pg_file_path>')
   .action(function (pg_file_path) {
     pathPg = pg_file_path;
