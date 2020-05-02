@@ -12,6 +12,7 @@ var readline = require('readline');
 var pg = require('./pg2.js');
 var lineParser = require('./pegjs/pg_line_parser.js');
 var tempfile = require('tempfile');
+const msgpack = require('msgpack-lite');
 const cluster = require('cluster');
 const { exec } = require("child_process");
 const sep = '\t';
@@ -19,10 +20,12 @@ const lineChunkSize = 1e3;
 const charChunkSize = 1e6;
 
 if(cluster.isWorker) {
-  const nodeTmpFile = tempfile();
-  const edgeTmpFile = tempfile();
-  const nodeTmpStream = fs.createWriteStream(nodeTmpFile);
-  const edgeTmpStream = fs.createWriteStream(edgeTmpFile);
+  const nodeTmpFile = tempfile('.msp');
+  const edgeTmpFile = tempfile('.msp');
+  const nodeTmpStream = msgpack.createEncodeStream();
+  nodeTmpStream.pipe(fs.createWriteStream(nodeTmpFile));
+  const edgeTmpStream = msgpack.createEncodeStream();
+  edgeTmpStream.pipe(fs.createWriteStream(edgeTmpFile));
   let nodeProps = {}, edgeProps = {};
   let nodeChunk = "", edgeChunk = "";
 
@@ -30,10 +33,11 @@ if(cluster.isWorker) {
     if(msg.type == 'dump') {
       nodeProps = msg.nodeProps;
       edgeProps = msg.edgeProps;
-      const nodeLines = readline.createInterface(fs.createReadStream(nodeTmpFile));
+      const nodeDecodeStream = msgpack.createDecodeStream();
+      const nodeReadStream = fs.createReadStream(nodeTmpFile);
+      nodeReadStream.pipe(nodeDecodeStream);
       let ended = 0;
-      nodeLines.on('line', (line) => {
-        const node = JSON.parse(line);
+      nodeDecodeStream.on('data', (node) => {
         addNode(node.id, node.labels, node.properties);
       });
       const closeHandler =  () => {
@@ -43,25 +47,28 @@ if(cluster.isWorker) {
           process.send({ type: 'dumpCompleted' });
         }
       };
-      nodeLines.on('close', closeHandler);
-      const edgeLines = readline.createInterface(fs.createReadStream(edgeTmpFile));
-      edgeLines.on('line', (line) => {
-        const edge = JSON.parse(line);
+      nodeReadStream.on('close', closeHandler);
+      const edgeDecodeStream = msgpack.createDecodeStream();
+      const edgeReadStream = fs.createReadStream(edgeTmpFile);
+      edgeReadStream.pipe(edgeDecodeStream);
+      edgeDecodeStream.on('data', (edge) => {
         addEdge(edge.from, edge.to, edge.labels, edge.properties);
       });
-      edgeLines.on('close', closeHandler);
+      edgeReadStream.on('close', closeHandler);
     }
     else if(msg.type == 'eof') {
       process.send({type: 'parseCompleted', nodeProps, edgeProps });
+      nodeTmpStream.end();
+      edgeTmpStream.end();
     } else if(msg.type == 'lines') {
       const parsed = msg.lines.map((line) => lineParser.parse(line));
       parsed.forEach((elem) => {
         if(elem.node) {
-          nodeTmpStream.write(JSON.stringify(elem.node) + "\n");
+          nodeTmpStream.write(elem.node);
           addProps(nodeProps, elem.node.properties);
         }
         else {
-          edgeTmpStream.write(JSON.stringify(elem.edge) + "\n");
+          edgeTmpStream.write(elem.edge);
           addProps(edgeProps, elem.edge.properties);
         }
       });

@@ -18,8 +18,9 @@
     "chai-fs": "^2.0.0",
     "commander": "^2.19.0",
     "mocha": "^5.2.0",
-    "tempfile": "^3.0.0",
-    "parallel-stream": "^1.1.2"
+    "msgpack-lite": "^0.1.26",
+    "parallel-stream": "^1.1.2",
+    "tempfile": "^3.0.0"
   },
   "bin": {
     "pg2pgx": "src/pg2pgx.js",
