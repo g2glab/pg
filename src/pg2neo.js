@@ -11,6 +11,7 @@ var fs = require('fs');
 var readline = require('readline');
 var pg = require('./pg2.js');
 var lineParser = require('./pegjs/pg_line_parser.js');
+var tempfile = require('tempfile');
 
 pg.commander;
 if (pg.commander.args.length === 0) {
@@ -26,7 +27,8 @@ const nodeStream = fs.createWriteStream(pathNodes);
 const pathEdges = prefix + '.neo.edges';
 const edgeStream = fs.createWriteStream(pathEdges);
 const sep = '\t';
-
+const nodeTempFile = tempfile();
+const edgeTempFile = tempfile();
 
 listProps(() => {
   writeHeaderNodes(() => {
@@ -42,11 +44,15 @@ listProps(() => {
 function listProps(callback) {
   let rs = fs.createReadStream(pathPg);
   let rl = readline.createInterface(rs, {});
+  const tempNodeStream = fs.createWriteStream(nodeTempFile);
+  const tempEdgeStream = fs.createWriteStream(edgeTempFile);
   rl.on('line', function(line) {
     const parsed = lineParser.parse(line);
     if(parsed.node) {
+      tempNodeStream.write(`${JSON.stringify(parsed.node)}\n`);
       addProps(nodeProps, parsed.node.properties);
     } else if(parsed.edge) {
+      tempEdgeStream.write(`${JSON.stringify(parsed.edge)}\n`);
       addProps(edgeProps, parsed.edge.properties);
     }
   });
@@ -98,22 +104,25 @@ function writeHeaderEdges(callback) {
 }
 
 function writeNodesAndEdges(callback) {
-  let rs = fs.createReadStream(pathPg);
-  let rl = readline.createInterface(rs, {});
-  rl.on('line', (line) => {
-    const parsed = lineParser.parse(line);
-    if(parsed.node) {
-      const node = parsed.node;
-      addNode(node.id, node.labels, node.properties);
-    } else if(parsed.edge) {
-      const edge = parsed.edge;
-      addEdge(edge.from, edge.to, edge.labels, edge.properties);
-    }
+  let closedCount = 0;
+  let nodeTempStream = fs.createReadStream(nodeTempFile);
+  let nodeLines = readline.createInterface(nodeTempStream, {});
+  nodeLines.on('line', (line) => {
+    node = JSON.parse(line);
+    addNode(node.id, node.labels, node.properties);
   });
-  rl.on('close', () => {
-    nodeStream.end();
-    edgeStream.end();
-    callback();
+  nodeLines.on('close', () => {
+    if(++closedCount >= 2) callback();
+  });
+
+  let edgeTempStream = fs.createReadStream(edgeTempFile);
+  let edgeLines = readline.createInterface(edgeTempStream, {});
+  edgeLines.on('line', (line) => {
+    edge = JSON.parse(line);
+    addEdge(edge.from, edge.to, edge.labels, edge.properties);
+  });
+  edgeLines.on('close', () => {
+    if(++closedCount >= 2) callback();
   });
 }
 
