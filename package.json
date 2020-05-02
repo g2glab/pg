@@ -13,11 +13,13 @@
     "pegjs": "^0.10.0"
   },
   "dependencies": {
+    "byline": "^5.0.0",
     "chai": "^4.2.0",
     "chai-fs": "^2.0.0",
     "commander": "^2.19.0",
     "mocha": "^5.2.0",
-    "tempfile": "^3.0.0"
+    "tempfile": "^3.0.0",
+    "parallel-stream": "^1.1.2"
   },
   "bin": {
     "pg2pgx": "src/pg2pgx.js",
