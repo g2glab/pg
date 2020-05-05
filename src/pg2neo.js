@@ -131,7 +131,7 @@ if(cluster.isWorker) {
     pg.commander.help();
   }
   let numCPUs = parseInt(pg.commander.parallel);
-  if(numCPUs <= 0) numCPUs = require('os').cpus().length;
+  if(numCPUs <= 0) numCPUs = require('physical-cpu-count');
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }

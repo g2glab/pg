@@ -19,7 +19,8 @@
     "commander": "^2.19.0",
     "mocha": "^5.2.0",
     "tempfile": "^3.0.0",
-    "parallel-stream": "^1.1.2"
+    "physical-cpu-count": "^2.0.0",
+    "tempfile": "^3.0.0"
   },
   "bin": {
     "pg2pgx": "src/pg2pgx.js",
