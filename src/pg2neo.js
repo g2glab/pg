@@ -11,7 +11,7 @@ var fs = require('fs');
 var readline = require('readline');
 var pg = require('./pg2.js');
 var lineParser = require('./pegjs/pg_line_parser.js');
-var tempfile = require('tempfile');
+var temp = require('temp').track();
 const cluster = require('cluster');
 const { exec } = require("child_process");
 const sep = '\t';
@@ -19,8 +19,8 @@ const lineChunkSize = 1e3;
 const charChunkSize = 1e6;
 
 if(cluster.isWorker) {
-  const nodeTmpFile = tempfile();
-  const edgeTmpFile = tempfile();
+  const nodeTmpFile = temp.openSync('temp').path;
+  const edgeTmpFile = temp.openSync('temp').path;
   const nodeTmpStream = fs.createWriteStream(nodeTmpFile);
   const edgeTmpStream = fs.createWriteStream(edgeTmpFile);
   let nodeProps = {}, edgeProps = {};
