@@ -191,6 +191,20 @@ if(cluster.isWorker) {
     });
   });
 
+  function mergeProps(props, another) {
+    const mergedProps = props;
+    for (let [name, type] of Object.entries(another)) {
+      if(!props[name]) {
+        mergedProps[name] = type;
+      } else if(props[name] + '[]' == type) {
+        mergedProps[name] = type;
+      } else if(props[name] != type && props[name] != type + '[]') {
+        console.log('WARNING: Neo4j only allows homogeneous lists of datatypes (', props[name], ' and ', type, ')');
+      }
+    }
+    return mergedProps;
+  }
+
   function listProps(callback) {
     let rs = fs.createReadStream(pathPg);
     let rl = readline.createInterface(rs, {});
@@ -222,8 +236,8 @@ if(cluster.isWorker) {
     for (const id in cluster.workers) {
       cluster.workers[id].on('message', (msg) => {
         if(msg.type == "parseCompleted") {
-          nodeProps = Object.assign(nodeProps, msg.nodeProps);
-          edgeProps = Object.assign(edgeProps, msg.edgeProps);
+          nodeProps = mergeProps(nodeProps, msg.nodeProps);
+          edgeProps = mergeProps(edgeProps, msg.edgeProps);
           if(++ended >= numCPUs) {
             callback();
           }
