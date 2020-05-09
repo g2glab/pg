@@ -17,6 +17,7 @@ const { exec } = require("child_process");
 const sep = '\t';
 const lineChunkSize = 1e3;
 const charChunkSize = 1e6;
+const useTemp = !pg.commander.without_tmp_file;
 
 if(cluster.isWorker) {
   const nodeTmpFile = temp.openSync('temp').path;
@@ -51,20 +52,51 @@ if(cluster.isWorker) {
       });
       edgeLines.on('close', closeHandler);
     }
+    else if(msg.type == 'dumpWithoutTmp') {
+      nodeProps = msg.nodeProps;
+      edgeProps = msg.edgeProps;
+      const parsed = msg.lines.map((line) => lineParser.parse(line));
+      parsed.forEach((elem) => {
+        if(elem.node) {
+          const node = elem.node;
+          addNode(node.id, node.labels, node.properties);
+        }
+        else {
+          const edge = elem.edge;
+          addEdge(edge.from, edge.to, edge.labels, edge.properties);
+        }
+      });
+    }
+    else if(msg.type == 'completedWithoutTmp') {
+      process.send({ type: "dumpNodes", lines: nodeChunk });
+      process.send({ type: "dumpEdges", lines: edgeChunk });
+      process.send({ type: 'dumpCompleted' });
+    }
     else if(msg.type == 'eof') {
       process.send({type: 'parseCompleted', nodeProps, edgeProps });
     } else if(msg.type == 'lines') {
       const parsed = msg.lines.map((line) => lineParser.parse(line));
-      parsed.forEach((elem) => {
-        if(elem.node) {
-          nodeTmpStream.write(JSON.stringify(elem.node) + "\n");
-          addProps(nodeProps, elem.node.properties);
-        }
-        else {
-          edgeTmpStream.write(JSON.stringify(elem.edge) + "\n");
-          addProps(edgeProps, elem.edge.properties);
-        }
-      });
+      if(useTemp) {
+        parsed.forEach((elem) => {
+          if(elem.node) {
+            nodeTmpStream.write(JSON.stringify(elem.node) + "\n");
+            addProps(nodeProps, elem.node.properties);
+          }
+          else {
+            edgeTmpStream.write(JSON.stringify(elem.edge) + "\n");
+            addProps(edgeProps, elem.edge.properties);
+          }
+        });
+      } else {
+        parsed.forEach((elem) => {
+          if(elem.node) {
+            addProps(nodeProps, elem.node.properties);
+          }
+          else {
+            addProps(edgeProps, elem.edge.properties);
+          }
+        });
+      }
     } else if(msg.type == "exit") {
       process.exit();
     }
@@ -235,8 +267,33 @@ if(cluster.isWorker) {
   }
 
   function writeNodesAndEdges(callback) {
-    Object.keys(cluster.workers).forEach( id => {
-      cluster.workers[id].send({ type: "dump", nodeProps: nodeProps, edgeProps: edgeProps});
-    });
+    let rs = fs.createReadStream(pathPg);
+    let rl = readline.createInterface(rs, {});
+    
+    let currentId = 1;
+    let lines = [];
+    if(useTemp)
+    {
+      Object.keys(cluster.workers).forEach( id => {
+        cluster.workers[id].send({ type: "dump", nodeProps: nodeProps, edgeProps: edgeProps});
+      });
+    } else {
+      rl.on('line', function(line) {
+        lines.push(line);
+        if(lines.length > lineChunkSize) {
+          cluster.workers[currentId].send({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
+          currentId += 1;
+          if(currentId > numCPUs)
+            currentId = 1;
+          lines = [];
+        }
+      });
+      rl.on('close', () => {
+        cluster.workers[currentId].send({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
+        for (const id in cluster.workers) {
+          cluster.workers[id].send({type: 'completedWithoutTmp'});
+        }
+      });
+    }
   }
 }
