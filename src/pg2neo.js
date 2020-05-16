@@ -1,12 +1,5 @@
 #!/usr/bin/env node
 
-String.prototype.quoteIfNeeded = function() {
-  if(this.includes('"') || this.includes('\t')) {
-    return `"${this.replace('"', '""')}"`;
-  }
-  return this;
-}
-
 var fs = require('fs');
 var readline = require('readline');
 var pg = require('./pg2.js');
@@ -16,8 +9,14 @@ const cluster = require('cluster');
 const { exec } = require("child_process");
 const sep = '\t';
 const lineChunkSize = 1e3;
-const charChunkSize = 1e6;
 const useTemp = !pg.commander.without_tmp_file;
+const preserveOrder = pg.commander.preserve_order;
+String.prototype.quoteIfNeeded = function() {
+  if(this.includes('"') || this.includes('\t')) {
+    return `"${this.replace('"', '""')}"`;
+  }
+  return this;
+}
 
 if(cluster.isWorker) {
   const nodeTmpFile = temp.openSync('temp').path;
@@ -25,7 +24,7 @@ if(cluster.isWorker) {
   const nodeTmpStream = fs.createWriteStream(nodeTmpFile);
   const edgeTmpStream = fs.createWriteStream(edgeTmpFile);
   let nodeProps = {}, edgeProps = {};
-  let nodeChunk = "", edgeChunk = "";
+  let nodeChunk = [], edgeChunk = [];
 
   process.on('message', function(msg) {
     if(msg.type == 'dump') {
@@ -34,21 +33,31 @@ if(cluster.isWorker) {
       const nodeLines = readline.createInterface(fs.createReadStream(nodeTmpFile));
       let ended = 0;
       nodeLines.on('line', (line) => {
-        const node = JSON.parse(line);
-        addNode(node.id, node.labels, node.properties);
+        if(line.length == 0) {
+          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
+          nodeChunk = [];
+        } else {
+          const node = JSON.parse(line);
+          addNode(node.id, node.labels, node.properties);
+        }
       });
       const closeHandler =  () => {
         if(++ended >= 2) {
-          process.send({ type: "dumpNodes", lines: nodeChunk });
-          process.send({ type: "dumpEdges", lines: edgeChunk });
+          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
+          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
           process.send({ type: 'dumpCompleted' });
         }
       };
       nodeLines.on('close', closeHandler);
       const edgeLines = readline.createInterface(fs.createReadStream(edgeTmpFile));
       edgeLines.on('line', (line) => {
-        const edge = JSON.parse(line);
-        addEdge(edge.from, edge.to, edge.labels, edge.properties);
+        if(line.length == 0) {
+          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
+          edgeChunk = [];
+        } else {
+          const edge = JSON.parse(line);
+          addEdge(edge.from, edge.to, edge.labels, edge.properties);
+        }
       });
       edgeLines.on('close', closeHandler);
     }
@@ -60,16 +69,20 @@ if(cluster.isWorker) {
         if(elem.node) {
           const node = elem.node;
           addNode(node.id, node.labels, node.properties);
+          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
+          nodeChunk = [];
         }
         else {
           const edge = elem.edge;
           addEdge(edge.from, edge.to, edge.labels, edge.properties);
+          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
+          edgeChunk = [];
         }
       });
     }
     else if(msg.type == 'completedWithoutTmp') {
-      process.send({ type: "dumpNodes", lines: nodeChunk });
-      process.send({ type: "dumpEdges", lines: edgeChunk });
+      process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
+      process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
       process.send({ type: 'dumpCompleted' });
     }
     else if(msg.type == 'eof') {
@@ -87,6 +100,8 @@ if(cluster.isWorker) {
             addProps(edgeProps, elem.edge.properties);
           }
         });
+        nodeTmpStream.write("\n"); // delimiter of chunk
+        edgeTmpStream.write("\n"); // delimiter of chunk
       } else {
         parsed.forEach((elem) => {
           if(elem.node) {
@@ -111,11 +126,7 @@ if(cluster.isWorker) {
     Object.keys(nodeProps).forEach((key, i) => {
       output[i + 2] = (lineProps.has(key)) ? lineProps.get(key) : '';
     });
-    nodeChunk += output.join(sep) + '\n';
-    if(nodeChunk.length >= charChunkSize) {
-      process.send({ type: "dumpNodes", lines: nodeChunk });
-      nodeChunk = "";
-    }
+    nodeChunk.push(output.join(sep) + "\n");
   }
 
   function addEdge(id1, id2, labels, props) {
@@ -127,11 +138,7 @@ if(cluster.isWorker) {
     Object.keys(edgeProps).forEach((key, i) => {
       output[i + 3] = (lineProps.has(key)) ? lineProps.get(key) : '';
     });
-    edgeChunk += output.join(sep) + '\n';
-    if(edgeChunk.length >= charChunkSize) {
-      process.send({ type: "dumpEdges", lines: edgeChunk });
-      edgeChunk = "";
-    }
+    edgeChunk.push(output.join(sep) + '\n');
   }
 
   function addProps(allProps, props) {
@@ -176,13 +183,12 @@ if(cluster.isWorker) {
   const nodeStream = fs.createWriteStream(pathNodes);
   const pathEdges = prefix + '.neo.edges';
   const edgeStream = fs.createWriteStream(pathEdges);
+  let flushNode = createOrderPreservedFlush(nodeStream);
+  let flushEdge = createOrderPreservedFlush(edgeStream);
 
   listProps(() => {
-    console.log("listed");
     writeHeaderNodes(() => {
-      console.log("wrote header nodes");
       writeHeaderEdges(() => {
-        console.log("wrote header edges");
         writeNodesAndEdges(() => {
           console.log('"' + pathNodes + '" has been created.');
           console.log('"' + pathEdges + '" has been created.');
@@ -205,6 +211,21 @@ if(cluster.isWorker) {
     return mergedProps;
   }
 
+  function createOrderPreservedFlush(stream) {
+    const dumpObj = {};
+    let currentDumpId = 1;
+    return (id, newChunk) => {
+      if(!dumpObj[id]) dumpObj[id] = [];
+      dumpObj[id].push(newChunk);
+      while(dumpObj[currentDumpId] && dumpObj[currentDumpId].length > 0) {
+        stream.write(dumpObj[currentDumpId].pop());
+        if(++currentDumpId > numCPUs) {
+          currentDumpId = 1;
+        }
+      }
+    };
+  }
+
   function listProps(callback) {
     let rs = fs.createReadStream(pathPg);
     let rl = readline.createInterface(rs, {});
@@ -215,8 +236,7 @@ if(cluster.isWorker) {
       lines.push(line);
       if(lines.length > lineChunkSize) {
         cluster.workers[currentId].send({type: 'lines', lines: lines});
-        currentId += 1;
-        if(currentId > numCPUs)
+        if(++currentId > numCPUs)
           currentId = 1;
         lines = [];
       }
@@ -230,8 +250,6 @@ if(cluster.isWorker) {
 
     let ended = 0;
     let dumpedCount = 0;
-    let nodeFiles = [];
-    let edgeFiles = [];
 
     for (const id in cluster.workers) {
       cluster.workers[id].on('message', (msg) => {
@@ -242,12 +260,18 @@ if(cluster.isWorker) {
             callback();
           }
         } else if(msg.type == "dumpNodes") {
-          nodeStream.write(msg.lines);
+          if(preserveOrder) {
+            flushNode(id, msg.lines);
+          } else {
+            nodeStream.write(msg.lines);
+          }
         } else if(msg.type == "dumpEdges") {
-          edgeStream.write(msg.lines);
+          if(preserveOrder) {
+            flushEdge(id, msg.lines);
+          } else {
+            edgeStream.write(msg.lines);
+          }
         } else if(msg.type == "dumpCompleted") {
-          nodeFiles[id] = msg.nodeFile;
-          edgeFiles[id] = msg.edgeFile;
           if(++dumpedCount >= numCPUs) {
             nodeStream.end();
             edgeStream.end();
