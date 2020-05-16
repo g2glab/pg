@@ -7,7 +7,7 @@
   let edgePropHash = {};
 }
 
-PG = lines:NodeOrEdge+
+PG = lines:NodeOrEdge* CommentLine*
 {
   return {
     nodes: lines.map(l => l.node).filter(v => v),
@@ -36,7 +36,7 @@ NodeOrEdge = n:Node
   }
 }
 
-Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? (NEWLINE / EOF) COMMENT_LINE*
+Node = CommentLine* WS* id:Value l:Label* p:Property* InlineComment? EndOfLine
 {
   let propObj = {};
   p.forEach(prop => {
@@ -70,7 +70,7 @@ Node = COMMENT_LINE* WS* id:Value l:Label* p:Property* INLINE_COMMENT? (NEWLINE 
   }
 }
 
-Edge = COMMENT_LINE* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* INLINE_COMMENT? (NEWLINE / EOF) COMMENT_LINE*
+Edge = CommentLine* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* InlineComment? EndOfLine
 {
   let propObj = {};
   p.forEach(prop => {
@@ -121,60 +121,81 @@ Property = WS+ k:Value WS* ':' WS* v:Value
 
 Direction = '--' / '->'
 
-Value = 
-// Number
-// {
-//   return text();
-// }
-'"' chars:DoubleStringCharacter* '"'
+Number = '-'? Integer ('.' [0-9]+)? Exp?
+
+Integer = '0' / [1-9] [0-9]*
+
+Exp = [eE] ('-' / '+')? [0-9]+
+
+EscapedChar = "'"
+/ '"'
+/ "\\"
+/ "b"
 {
-  return chars.join('');
+  return "\b";
 }
-/ "'" chars:SingleStringCharacter* "'"
+/ "f"
 {
-  return chars.join('');
+  return "\f";
 }
-/ chars:BARE_CHAR+
+/ "n"
 {
-  return chars.join('');
+  return "\n";
+}
+/ "r"
+{
+  return "\r";
+}
+/ "t"
+{
+  return "\t";
+}
+/ "v"
+{
+  return "\x0B";
 }
 
-// Number = '-'? Integer ('.' [0-9]+)? Exp?
-
-// Integer = '0' / [1-9] [0-9]*
-
-// Exp = [eE] ('-' / '+')? [0-9]+
-
-DoubleStringCharacter = !('"' / "\\") char:.
+DoubleQuotedChar = !('"' / "\\") char:.
 {
   return char;
 }
-/ "\\" sequence:EscapeSequence
+/ "\\" esc:EscapedChar
 {
-  return sequence;
+  return esc;
 }
 
-SingleStringCharacter = !("'" / "\\") char:.
+SingleQuotedChar = !("'" / "\\") char:.
 {
   return char;
 }
-/ "\\" sequence:EscapeSequence
+/ "\\" esc:EscapedChar
 {
-  return sequence;
+  return esc;
 }
 
-EscapeSequence = "'" / '"' / "\\"
-/ "b"  { return "\b";   }
-/ "f"  { return "\f";   }
-/ "n"  { return "\n";   }
-/ "r"  { return "\r";   }
-/ "t"  { return "\t";   }
-/ "v"  { return "\x0B"; }
-
-BARE_CHAR = [^:\u0020\u0009\u000D\u000A]
+Value = Number & SPECIAL_CHAR
+{
+  return text();
+}
+/ '"' chars:DoubleQuotedChar* '"'
+{
+  return chars.join('');
+}
+/ "'" chars:SingleQuotedChar* "'"
+{
+  return chars.join('');
+}
+/ chars:NON_SPECIAL_CHAR+
+{
+  return chars.join('');
+}
 
 // space or tab
 WS = [\u0020\u0009]
+
+SPECIAL_CHAR = [:\u0020\u0009\u000D\u000A]
+
+NON_SPECIAL_CHAR = [^:\u0020\u0009\u000D\u000A]
 
 // CR or LF
 NEWLINE = [\u000D\u000A]
@@ -183,9 +204,8 @@ NON_NEWLINE = [^\u000D\u000A]
 
 EOF = !.
 
-COMMENT_LINE = WS* ('#' NON_NEWLINE*)? (NEWLINE / EOF)
-{
-    return;
-}
+EndOfLine = EOF / NEWLINE
 
-INLINE_COMMENT = WS+ '#' WS+ NON_NEWLINE*
+CommentLine = WS* ('#' NON_NEWLINE*)? NEWLINE
+
+InlineComment = WS+ '#' WS+ NON_NEWLINE*
