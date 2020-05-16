@@ -7,19 +7,18 @@
     "type": "git",
     "url": "https://github.com/g2glab/pg.git"
   },
-  "devDependencies": {
+  "dependencies": {
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "pegjs": "^0.10.0"
-  },
-  "dependencies": {
-    "byline": "^5.0.0",
-    "chai": "^4.2.0",
-    "chai-fs": "^2.0.0",
     "commander": "^2.19.0",
-    "mocha": "^5.2.0",
     "physical-cpu-count": "^2.0.0",
     "temp": "^0.9.1"
+  },
+  "devDependencies": {
+    "mocha": "^7.1.2",
+    "chai": "^4.2.0",
+    "chai-fs": "^2.0.0",
+    "pegjs": "^0.10.0"
   },
   "bin": {
     "pg2pgx": "src/pg2pgx.js",
@@ -27,5 +26,11 @@
     "pg2dot": "src/pg2dot.js",
     "pg2aws": "src/pg2aws.js",
     "pg2json": "src/pg2json.js"
+  },
+  "mocha": {
+    "timeout": 5000
+  },
+  "scripts": {
+    "test": "mocha"
   }
 }
