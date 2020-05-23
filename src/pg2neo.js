@@ -1,22 +1,17 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var readline = require('readline');
-var pg = require('./pg2.js');
-var lineParser = require('./pegjs/pg_line_parser.js');
-var temp = require('temp').track();
+const fs = require('fs');
+const readline = require('readline');
+const pg = require('./pg2.js');
+const lineParser = require('./pegjs/pg_line_parser.js');
+const temp = require('temp').track();
 const cluster = require('cluster');
 const { exec } = require("child_process");
+const util = require("./util.js");
 const sep = '\t';
 const lineChunkSize = 1e3;
 const useTemp = !pg.commander.without_tmp_file;
 const preserveOrder = pg.commander.preserve_order;
-String.prototype.quoteIfNeeded = function() {
-  if(this.includes('"') || this.includes('\t')) {
-    return `"${this.replace('"', '""')}"`;
-  }
-  return this;
-}
 
 if(cluster.isWorker) {
   const nodeTmpFile = temp.openSync('temp').path;
@@ -26,40 +21,47 @@ if(cluster.isWorker) {
   let nodeProps = {}, edgeProps = {};
   let nodeChunk = [], edgeChunk = [];
 
+  function handleLines(filePath, onLine, onClose) {
+    const lines = readline.createInterface(fs.createReadStream(filePath));
+    lines.on('line', onLine);
+    lines.on('close', onClose);
+  }
+
+  function flushChunk(typeName, chunk) {
+    process.send({ type: typeName, lines: chunk.join('') });
+    chunk.length = 0; // Clear chunk
+  }
+
   process.on('message', function(msg) {
     if(msg.type == 'dump') {
       nodeProps = msg.nodeProps;
       edgeProps = msg.edgeProps;
-      const nodeLines = readline.createInterface(fs.createReadStream(nodeTmpFile));
       let ended = 0;
-      nodeLines.on('line', (line) => {
+      const closeHandler = () => {
+        if(++ended >= 2) {
+          flushChunk("dumpNodes", nodeChunk);
+          flushChunk("dumpEdges", edgeChunk);
+          process.send({ type: 'dumpCompleted' });
+        }
+      };
+      
+      handleLines(nodeTmpFile, (line) => {
         if(line.length == 0) {
-          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
-          nodeChunk = [];
+          flushChunk("dumpNodes", nodeChunk);
         } else {
           const node = JSON.parse(line);
           addNode(node.id, node.labels, node.properties);
         }
-      });
-      const closeHandler =  () => {
-        if(++ended >= 2) {
-          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
-          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
-          process.send({ type: 'dumpCompleted' });
-        }
-      };
-      nodeLines.on('close', closeHandler);
-      const edgeLines = readline.createInterface(fs.createReadStream(edgeTmpFile));
-      edgeLines.on('line', (line) => {
+      }, closeHandler);
+
+      handleLines(edgeTmpFile, (line) => {
         if(line.length == 0) {
-          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
-          edgeChunk = [];
+          flushChunk("dumpEdges", edgeChunk);
         } else {
           const edge = JSON.parse(line);
           addEdge(edge.from, edge.to, edge.labels, edge.properties);
         }
-      });
-      edgeLines.on('close', closeHandler);
+      }, closeHandler);
     }
     else if(msg.type == 'dumpWithoutTmp') {
       nodeProps = msg.nodeProps;
@@ -69,20 +71,18 @@ if(cluster.isWorker) {
         if(elem.node) {
           const node = elem.node;
           addNode(node.id, node.labels, node.properties);
-          process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
-          nodeChunk = [];
+          flushChunk("dumpNodes", nodeChunk);
         }
         else {
           const edge = elem.edge;
           addEdge(edge.from, edge.to, edge.labels, edge.properties);
-          process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
-          edgeChunk = [];
+          flushChunk("dumpEdges", edgeChunk);
         }
       });
     }
     else if(msg.type == 'completedWithoutTmp') {
-      process.send({ type: "dumpNodes", lines: nodeChunk.join('') });
-      process.send({ type: "dumpEdges", lines: edgeChunk.join('') });
+      flushChunk("dumpNodes", nodeChunk);
+      flushChunk("dumpEdges", edgeChunk);
       process.send({ type: 'dumpCompleted' });
     }
     else if(msg.type == 'eof') {
