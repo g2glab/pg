@@ -8,9 +8,9 @@
     "url": "https://github.com/g2glab/pg.git"
   },
   "dependencies": {
+    "commander": "^5.1.0",
     "fs": "0.0.1-security",
     "path": "^0.12.7",
-    "commander": "^2.19.0",
     "physical-cpu-count": "^2.0.0",
     "temp": "^0.9.1"
   },
