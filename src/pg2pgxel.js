@@ -4,7 +4,7 @@ var fs = require('fs');
 var readline = require('readline');
 var pg = require('./pg2.js');
 
-pg.commander;
+pg.commander.parse(process.argv);
 if (pg.commander.args.length === 0) {
   console.error("Error: no argument is given!");
   pg.commander.help();

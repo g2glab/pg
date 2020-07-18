@@ -10,6 +10,8 @@ const { exec } = require("child_process");
 const util = require("./util.js");
 const sep = '\t';
 const lineChunkSize = 1e3;
+pg.commander.option('-v, --verbose', 'Show processed line counts in progress').parse(process.argv);
+const verbose = pg.commander.verbose;
 const useTemp = !pg.commander.without_tmp_file;
 const preserveOrder = pg.commander.preserve_order;
 
@@ -28,7 +30,7 @@ if(cluster.isWorker) {
   }
 
   function flushChunk(typeName, chunk) {
-    process.send({ type: typeName, lines: chunk.join('') });
+    process.send({ type: typeName, lines: chunk.join(''), count: chunk.length });
     chunk.length = 0; // Clear chunk
   }
 
@@ -50,7 +52,7 @@ if(cluster.isWorker) {
           flushChunk("dumpNodes", nodeChunk);
         } else {
           const node = JSON.parse(line);
-          addNode(node.id, node.labels, node.properties);
+          addNode(node[0], node[1], node[2]);
         }
       }, closeHandler);
 
@@ -59,7 +61,7 @@ if(cluster.isWorker) {
           flushChunk("dumpEdges", edgeChunk);
         } else {
           const edge = JSON.parse(line);
-          addEdge(edge.from, edge.to, edge.labels, edge.properties);
+          addEdge(edge[0], edge[1], edge[3], edge[4]);
         }
       }, closeHandler);
     }
@@ -92,11 +94,11 @@ if(cluster.isWorker) {
       if(useTemp) {
         parsed.forEach((elem) => {
           if(elem.node) {
-            nodeTmpStream.write(JSON.stringify(elem.node) + "\n");
+            nodeTmpStream.write(JSON.stringify(Object.values(elem.node)) + "\n");
             addProps(nodeProps, elem.node.properties);
           }
           else {
-            edgeTmpStream.write(JSON.stringify(elem.edge) + "\n");
+            edgeTmpStream.write(JSON.stringify(Object.values(elem.edge)) + "\n");
             addProps(edgeProps, elem.edge.properties);
           }
         });
@@ -112,6 +114,8 @@ if(cluster.isWorker) {
           }
         });
       }
+      if(verbose)
+        process.send({ type: "lineParsed", count: parsed.length });
     } else if(msg.type == "exit") {
       process.exit();
     }
@@ -166,7 +170,7 @@ if(cluster.isWorker) {
   }
 } else {  
   if (pg.commander.args.length === 0) {
-    console.error("Error: no argument is given!");
+    console.log("Error: no argument is given!");
     pg.commander.help();
   }
   let numCPUs = parseInt(pg.commander.parallel);
@@ -178,6 +182,7 @@ if(cluster.isWorker) {
 
   let nodeProps = {};
   let edgeProps = {};
+  let lineCount = 0, displayedLineCount = 0;
 
   const pathNodes = prefix + '.neo.nodes';
   const nodeStream = fs.createWriteStream(pathNodes);
@@ -234,7 +239,7 @@ if(cluster.isWorker) {
     let lines = [];
     rl.on('line', function(line) {
       lines.push(line);
-      if(lines.length > lineChunkSize) {
+      if(lines.length > lineChunkSize) {        
         cluster.workers[currentId].send({type: 'lines', lines: lines});
         if(++currentId > numCPUs)
           currentId = 1;
@@ -253,19 +258,26 @@ if(cluster.isWorker) {
 
     for (const id in cluster.workers) {
       cluster.workers[id].on('message', (msg) => {
-        if(msg.type == "parseCompleted") {
+        if(msg.type == "lineParsed") {
+          lineCount += msg.count;
+          console.log(`${lineCount} lines parsed..`);
+        } else if(msg.type == "parseCompleted") {
           nodeProps = mergeProps(nodeProps, msg.nodeProps);
           edgeProps = mergeProps(edgeProps, msg.edgeProps);
           if(++ended >= numCPUs) {
             callback();
+            displayedLineCount = 0;
+            lineCount = 0;
           }
         } else if(msg.type == "dumpNodes") {
+          showProgress(msg);
           if(preserveOrder) {
             flushNode(id, msg.lines);
           } else {
             nodeStream.write(msg.lines);
           }
         } else if(msg.type == "dumpEdges") {
+          showProgress(msg);
           if(preserveOrder) {
             flushEdge(id, msg.lines);
           } else {
@@ -283,6 +295,16 @@ if(cluster.isWorker) {
           }
         }
       });
+    }
+  }
+
+  function showProgress(msg) {
+    if(verbose) {
+      lineCount += msg.count;
+      if(lineCount > displayedLineCount + lineChunkSize) {
+        console.log(`${lineCount} lines dumped..`);
+        displayedLineCount = lineCount;
+      }
     }
   }
 

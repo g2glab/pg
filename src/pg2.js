@@ -17,7 +17,6 @@ exports.commander = commander
       fs.mkdirSync(commander.output_dir, {recursive: true});
     }
   })
-  .parse(process.argv);
 
 exports.isLineRead = function (line) {
   if (line.charAt(0) != '#' && line != '') {

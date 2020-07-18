@@ -4,7 +4,7 @@ let fs = require('fs');
 let readline = require('readline');
 let pg = require('./pg2.js');
 
-pg.commander;
+pg.commander.parse(process.argv);
 
 const fileJSON = prefix + '.json';
 
