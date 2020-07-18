@@ -190,8 +190,9 @@ if(cluster.isWorker) {
   const edgeStream = fs.createWriteStream(pathEdges);
   let flushNode = createOrderPreservedFlush(nodeStream);
   let flushEdge = createOrderPreservedFlush(edgeStream);
+  let currentId = 1;
 
-  listProps(() => {
+  parseLines(() => {
     writeHeaderNodes(() => {
       writeHeaderEdges(() => {
         writeNodesAndEdges(() => {
@@ -222,8 +223,8 @@ if(cluster.isWorker) {
     return (workerId, newChunk) => {
       if(!listsToDump[workerId]) listsToDump[workerId] = [];
       listsToDump[workerId].push(newChunk);
-      while(listsToDump[currentWorkerId] && listsToDump[currentWorkerId].length > 0) {
-        stream.write(listsToDump[currentWorkerId].pop());
+      while(listsToDump[currentWorkerId] != null && listsToDump[currentWorkerId].length > 0) {
+        stream.write(listsToDump[currentWorkerId].shift());
         if(++currentWorkerId > numCPUs) {
           currentWorkerId = 1;
         }
@@ -231,23 +232,20 @@ if(cluster.isWorker) {
     };
   }
 
-  function listProps(callback) {
+  function parseLines(callback) {
     let rs = fs.createReadStream(pathPg);
     let rl = readline.createInterface(rs, {});
 
-    let currentId = 1;
     let lines = [];
     rl.on('line', function(line) {
       lines.push(line);
-      if(lines.length > lineChunkSize) {        
-        cluster.workers[currentId].send({type: 'lines', lines: lines});
-        if(++currentId > numCPUs)
-          currentId = 1;
+      if(lines.length > lineChunkSize) {
+        sendToNextWorker({type: 'lines', lines: lines});
         lines = [];
       }
     });
     rl.on('close', () => {
-      cluster.workers[currentId].send({type: 'lines', lines: lines});
+      sendToNextWorker({type: 'lines', lines: lines});
       for (const id in cluster.workers) {
         cluster.workers[id].send({type: "eof"});
       }
@@ -326,12 +324,18 @@ if(cluster.isWorker) {
     callback();
   }
 
+  function sendToNextWorker(msg) {
+    cluster.workers[currentId].send(msg);
+    currentId += 1;
+    if(currentId > numCPUs)
+      currentId = 1;
+  }
+
   function writeNodesAndEdges(callback) {
     let rs = fs.createReadStream(pathPg);
     let rl = readline.createInterface(rs, {});
-    
-    let currentId = 1;
     let lines = [];
+    currentId = 1;
     if(useTemp)
     {
       Object.keys(cluster.workers).forEach( id => {
@@ -341,16 +345,13 @@ if(cluster.isWorker) {
       rl.on('line', function(line) {
         lines.push(line);
         if(lines.length > lineChunkSize) {
-          cluster.workers[currentId].send({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
-          currentId += 1;
-          if(currentId > numCPUs)
-            currentId = 1;
+          sendToNextWorker({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
           lines = [];
         }
       });
       rl.on('close', () => {
-        cluster.workers[currentId].send({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
-        for (const id in cluster.workers) {
+        sendToNextWorker({type: 'dumpWithoutTmp', lines, nodeProps, edgeProps});
+        for(const id in cluster.workers) {
           cluster.workers[id].send({type: 'completedWithoutTmp'});
         }
       });
