@@ -217,15 +217,15 @@ if(cluster.isWorker) {
   }
 
   function createOrderPreservedFlush(stream) {
-    const dumpObj = {};
-    let currentDumpId = 1;
-    return (id, newChunk) => {
-      if(!dumpObj[id]) dumpObj[id] = [];
-      dumpObj[id].push(newChunk);
-      while(dumpObj[currentDumpId] && dumpObj[currentDumpId].length > 0) {
-        stream.write(dumpObj[currentDumpId].pop());
-        if(++currentDumpId > numCPUs) {
-          currentDumpId = 1;
+    const listsToDump = {};
+    let currentWorkerId = 1;
+    return (workerId, newChunk) => {
+      if(!listsToDump[workerId]) listsToDump[workerId] = [];
+      listsToDump[workerId].push(newChunk);
+      while(listsToDump[currentWorkerId] && listsToDump[currentWorkerId].length > 0) {
+        stream.write(listsToDump[currentWorkerId].pop());
+        if(++currentWorkerId > numCPUs) {
+          currentWorkerId = 1;
         }
       }
     };
