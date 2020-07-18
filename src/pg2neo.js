@@ -10,7 +10,10 @@ const { exec } = require("child_process");
 const util = require("./util.js");
 const sep = '\t';
 const lineChunkSize = 1e3;
-pg.commander.option('-v, --verbose', 'Show processed line counts in progress').parse(process.argv);
+pg.commander.option('-v, --verbose', 'Show processed line counts in progress').option('-p, --parallel [num]', 'number of worker processors to use', '1').
+  option('--preserve_order', 'if specified, output file will preserve order in original pg file').
+  option('--without_tmp_file', 'prohibit creation of temporary files (slow, but works in smaller disk space)').
+  parse(process.argv);
 const verbose = pg.commander.verbose;
 const useTemp = !pg.commander.without_tmp_file;
 const preserveOrder = pg.commander.preserve_order;
