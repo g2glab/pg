@@ -25,11 +25,11 @@ function addNodeLine(id, labels, properties) {
     if (key == 'vis_label') {
       visLabel += strValues + '\\l';
     } else {
-      strProps += ' ' + key + '="' + strValues + '"';
+      strProps += `${key}:${strValues}\\l`;
     }
   }
-  strLabel += visLabel + '"';
-  let output = '"' + id[0] + '" [' + strLabel + strProps + ']';
+  strLabel += visLabel;
+  let output = '"' + id[0] + '" [' + strLabel + strProps + '"]';
   streamDot.write(output + '\n');
 }
 
@@ -41,12 +41,12 @@ function addEdgeLine(id1, id2, undirected, labels, properties) {
     if (key == 'vis_label') {
       visLabel += strValues + '\\l';
     } else {
-      strProps += ' ' + key + '="' + strValues + '"';
+      strProps += `${key}:${strValues}\\l`;
     }
   }
-  let strLabel = 'label="' + labels.join(';') + '\\l' + visLabel + '"';
+  let strLabel = 'label="' + labels.join(';') + '\\l' + visLabel;
   let strDir = (undirected) ? ' dir=none' : '';
-  let output = '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + strDir + ']';
+  let output = '"' + id1[0] + '" -> "' + id2[0] + '" [' + strLabel + strProps + '"' + strDir + ']';
   streamDot.write(output + '\n');
 }
 
