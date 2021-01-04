@@ -7,7 +7,7 @@ const lineParser = require('./pegjs/pg_line_parser.js');
 const temp = require('temp').track();
 const cluster = require('cluster');
 const { exec } = require("child_process");
-const util = require("./util.js");
+require("./util.js");
 const sep = '\t';
 const lineChunkSize = 1e3;
 pg.commander.option('-v, --verbose', 'Show processed line counts in progress').option('-p, --parallel [num]', 'number of worker processors to use', '1').
