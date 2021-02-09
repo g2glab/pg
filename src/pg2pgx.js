@@ -155,6 +155,7 @@ function filename(path) {
 
 function format(str, type) {
   let output = [];
+  str = str.replace(/%/g, '%25');
   if (type === 'none') {
     output[0] = '';
     output[1] = '';
