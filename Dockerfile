@@ -1,20 +1,12 @@
-FROM openjdk:8-jdk
+FROM alpine:3.13
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
- && apt-get install -y nodejs
+RUN apk add --no-cache npm
 
-RUN apt-get update \
- && apt-get install -y \
-    unzip \
-    vim
-
-RUN cd \
- && echo 'syntax on' > .vimrc
-
+ENV PG_VERSION 0.3.5
 RUN cd /opt \
- && git clone -b v0.3.5 https://github.com/g2gml/pg.git \
- && cd pg \
- && npm install \
- && npm link
+ && wget https://github.com/g2glab/pg/archive/refs/tags/v${PG_VERSION}.zip \
+ && unzip v${PG_VERSION}.zip && rm v${PG_VERSION}.zip \
+ && cd /opt/pg-${PG_VERSION} \
+ && npm install && npm link
 
 WORKDIR /work
