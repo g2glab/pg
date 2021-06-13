@@ -7,7 +7,8 @@
   let edgePropHash = {};
 }
 
-PG = lines:NodeOrEdge* CommentLine*
+
+PG = EOF / lines:NodeOrEdge+ EOF
 {
   return {
     nodes: lines.map(l => l.node).filter(v => v),
@@ -18,8 +19,6 @@ PG = lines:NodeOrEdge* CommentLine*
     edgeLabels: edgeLabelHash,
     nodeProperties: nodePropHash,
     edgeProperties: edgePropHash
-    // nodeProperties: Object.keys(nodePropHash),
-    // edgeProperties: Object.keys(edgePropHash)
   }
 }
 
@@ -35,8 +34,9 @@ NodeOrEdge = n:Node
     edge: e
   }
 }
+/ EmptyLine
 
-Node = CommentLine* WS* id:Value l:Label* p:Property* WS* InlineComment? EndOfLine
+Node = id:$Value l:Label* p:Property* WS* EndOfLine
 {
   let propObj = {};
   p.forEach(prop => {
@@ -70,7 +70,7 @@ Node = CommentLine* WS* id:Value l:Label* p:Property* WS* InlineComment? EndOfLi
   }
 }
 
-Edge = CommentLine* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property* WS* InlineComment? EndOfLine
+Edge = f:$Value WS+ d:Direction WS+ t:Value l:Label* p:Property* WS* EndOfLine
 {
   let propObj = {};
   p.forEach(prop => {
@@ -106,12 +106,12 @@ Edge = CommentLine* WS* f:Value WS+ d:Direction WS+ t:Value l:Label* p:Property*
   }
 }
 
-Label = WS+ ':' WS* l:Value
+Label = Delimiter+ ':' WS* l:Value
 {
   return l
 }
 
-Property = WS+ k:Value WS* ':' WS* v:Value
+Property = Delimiter+ k:Value WS* ':' WS* v:Value
 {
   return {
     key: k,
@@ -182,7 +182,7 @@ Value = Number & SPECIAL_CHAR
   return chars.join('');
 }
 / "'" chars:SingleQuotedChar* "'"
-{
+{ 
   return chars.join('');
 }
 / chars:NON_SPECIAL_CHAR+
@@ -206,6 +206,6 @@ EOF = !.
 
 EndOfLine = EOF / NEWLINE
 
-CommentLine = WS* ('#' NON_NEWLINE*)? NEWLINE
+Delimiter = (WS* NEWLINE WS+) / WS+
 
-InlineComment = WS+ '#' WS+ NON_NEWLINE*
+EmptyLine = WS+ EOF /  WS* NEWLINE

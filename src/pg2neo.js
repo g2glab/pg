@@ -71,7 +71,7 @@ if(cluster.isWorker) {
     else if(msg.type == 'dumpWithoutTmp') {
       nodeProps = msg.nodeProps;
       edgeProps = msg.edgeProps;
-      const parsed = msg.lines.map((line) => lineParser.parse(line));
+      const parsed = msg.lines.map(line => line.removeComment()).filter(line => line.length > 0).map((line) => lineParser.parse(line));
       parsed.forEach((elem) => {
         if(elem.node) {
           const node = elem.node;
@@ -93,7 +93,7 @@ if(cluster.isWorker) {
     else if(msg.type == 'eof') {
       process.send({type: 'parseCompleted', nodeProps, edgeProps });
     } else if(msg.type == 'lines') {
-      const parsed = msg.lines.map((line) => lineParser.parse(line));
+      const parsed = msg.lines.map(line => line.removeComment()).filter(line => line.length > 0).map((line) => lineParser.parse(line));
       if(useTemp) {
         parsed.forEach((elem) => {
           if(elem.node) {

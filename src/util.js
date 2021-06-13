@@ -4,3 +4,7 @@ String.prototype.quoteIfNeeded = function() {
   }
   return this;
 }
+
+String.prototype.removeComment = function() {
+  return this.replace(/^((("[^"\\]*(\\.[^"\\]*)*")|[^#"])*)(#.*)$/gm, '$1');
+}
